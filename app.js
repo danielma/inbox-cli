@@ -4,6 +4,7 @@ import { render } from "react-blessed";
 import authorize from "./authorize";
 import google from "googleapis";
 import googleAuth from "google-auth-library";
+import { exec } from "child_process";
 
 const gmail = google.gmail("v1");
 
@@ -28,6 +29,16 @@ class GmailMessage {
     const plainText = parts.find(p => p.mimeType === "text/plain") || parts[0];
     return new Buffer(plainText.body.data, "base64").toString("utf8");
   }
+
+  get externalURL() {
+    return this.githubURL;
+  }
+
+  get githubURL() {
+    const match = this.plainText.match(/github:\s+(http.+)/im);
+
+    return match && match[1];
+  }
 }
 
 function promisify(fn) {
@@ -45,6 +56,11 @@ function promisify(fn) {
 
 const listThreads = promisify(gmail.users.threads.list);
 const getThread = promisify(gmail.users.threads.get);
+
+function openURL(url, { background = false } = {}) {
+  const backgroundOption = background ? "-g" : "";
+  exec(`open ${backgroundOption} ${url}`);
+}
 
 class App extends React.Component {
   state = { messages: [], selectedMessage: null };
@@ -88,12 +104,30 @@ class App extends React.Component {
           items={this.state.messages.map(m => m.subject)}
           vi
           keys
-          onSelect={({ index }) =>
-            this.handleMessageSelected(this.state.messages[index - 2])
-          }
+          mouse
+          onSelect={(_item, index) => {
+            this.handleMessageSelected(this.state.messages[index]);
+          }}
+          onKeypress={(_ch, key) => {
+            if (key.full === "C-o") {
+              const selected = this.refs.messageList.selected;
+              openURL(this.state.messages[selected].externalURL, {
+                background: true
+              });
+            } else if (key.full === "C-l") {
+              const selected = this.refs.messageList.selected;
+              openURL(this.state.messages[selected].externalURL);
+            }
+          }}
           ref="messageList"
         />
-        <box top="20%" height="80%" width="100%">
+        <box
+          border={{ type: "line" }}
+          style={{ border: { fg: "blue" }, selected: { bg: "gray" } }}
+          top="20%"
+          height="80%"
+          width="100%"
+        >
           {this.state.selectedMessage && this.state.selectedMessage.plainText}
         </box>
       </element>
@@ -106,7 +140,7 @@ authorize().then(auth => {
   const screen = blessed.screen({
     autoPadding: true,
     smartCSR: true,
-    title: "react-blessed hello world"
+    title: "inbox"
   });
 
   // Adding a way to quit the program
