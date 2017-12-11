@@ -91,9 +91,15 @@ class App extends React.Component {
   componentDidMount() {
     this.reloadInbox();
     this.refs.messageList.focus();
+    this.setupReloadInterval();
   }
 
+  setupReloadInterval = () => {
+    setInterval(this.reloadInbox, 30000);
+  };
+
   reloadInbox = () => {
+    this.setState({ error: "loading" });
     const { auth } = this.props;
     const userId = "me";
     return listThreads({
@@ -109,7 +115,7 @@ class App extends React.Component {
         );
       })
       .then(threads => threads.map(t => new GmailThread(t)))
-      .then(threads => this.setState({ threads }));
+      .then(threads => this.setState({ threads, error: null }));
   };
 
   handleMessageListKeypress = (_ch, key) => {
