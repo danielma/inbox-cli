@@ -13,8 +13,8 @@
     "blessed": "^0.1.81",
     "google-auth-library": "^0.11.0",
     "googleapis": "^22.2.0",
-    "react": "0.14.0",
-    "react-blessed": "^0.1.8"
+    "react": ">= 16.0.0",
+    "react-blessed": "^0.2.0"
   },
   "scripts": {
     "run": "node index.js"

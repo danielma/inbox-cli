@@ -1,6 +1,6 @@
 import React from "react";
 import blessed from "blessed";
-import { render } from "react-blessed";
+import { render } from "react-blessed/dist/fiber/fiber";
 import authorize from "./authorize";
 import google from "googleapis";
 import googleAuth from "google-auth-library";
