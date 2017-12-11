@@ -48,13 +48,29 @@ class GmailMessage {
   }
 
   get externalURL() {
-    return this.githubURL;
+    return this.githubURL || this.trelloURL;
   }
 
   get githubURL() {
     const match = this.plainText.match(/github:\s+(http.+)/im);
 
     return match && match[1];
+  }
+
+  get trelloURL() {
+    const match = this.plainText.match(/\((https:\/\/trello.com.+?)\)/);
+
+    return match && match[1];
+  }
+
+  open({ background = false } = {}) {
+    return new Promise((resolve, reject) => {
+      if (this.externalURL) {
+        resolve(openURL(this.externalURL, { background }));
+      } else {
+        reject("no external URL");
+      }
+    });
   }
 }
 
@@ -124,9 +140,7 @@ class App extends React.Component {
     const { messages } = this;
     const selectedMessage = messages[messageList.selected];
     if (full === "C-o") {
-      openURL(selectedMessage.externalURL, {
-        background: true
-      });
+      selectedMessage.open({ background: true });
     } else if (full === "C-d") {
       this.archiveThread(selectedMessage.threadId);
     } else if (full === "C-p") {
@@ -207,7 +221,7 @@ class App extends React.Component {
             this.setState({ selectedIndex: index });
           }}
           onSelect={(_item, index) => {
-            openURL(messages[index].externalURL);
+            messages[index].open();
           }}
           onKeypress={this.handleMessageListKeypress}
           ref="messageList"
