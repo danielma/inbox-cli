@@ -137,6 +137,8 @@ class App extends React.Component {
       messageList.screen.render();
     } else if (full === "C-z" && this.state.lastArchivedThreadId) {
       this.unarchiveLastArchivedThread();
+    } else if (full === "r") {
+      this.reloadInbox();
     }
   };
 
