@@ -128,15 +128,7 @@ class App extends React.Component {
         background: true
       });
     } else if (full === "C-d") {
-      modifyThread({
-        auth: this.props.auth,
-        userId: "me",
-        id: selectedMessage.threadId,
-        resource: { removeLabelIds: ["INBOX"] }
-      }).then(thread => {
-        this.setState({ lastArchivedThreadId: thread.id });
-        this.reloadInbox();
-      }, this.logError);
+      this.archiveThread(selectedMessage.threadId);
     } else if (full === "C-p") {
       messageList.up();
       messageList.screen.render();
@@ -144,16 +136,32 @@ class App extends React.Component {
       messageList.down();
       messageList.screen.render();
     } else if (full === "C-z" && this.state.lastArchivedThreadId) {
-      modifyThread({
-        auth: this.props.auth,
-        userId: "me",
-        id: this.state.lastArchivedThreadId,
-        resource: { addLabelIds: ["INBOX"] }
-      }).then(_thread => {
-        this.setState({ lastArchivedThreadId: null });
-        this.reloadInbox();
-      }, this.logError);
+      this.unarchiveLastArchivedThread();
     }
+  };
+
+  archiveThread = threadId => {
+    modifyThread({
+      auth: this.props.auth,
+      userId: "me",
+      id: threadId,
+      resource: { removeLabelIds: ["INBOX"] }
+    }).then(thread => {
+      this.setState({ lastArchivedThreadId: thread.id });
+      this.reloadInbox();
+    }, this.logError);
+  };
+
+  unarchiveLastArchivedThread = () => {
+    modifyThread({
+      auth: this.props.auth,
+      userId: "me",
+      id: this.state.lastArchivedThreadId,
+      resource: { addLabelIds: ["INBOX"] }
+    }).then(_thread => {
+      this.setState({ lastArchivedThreadId: null });
+      this.reloadInbox();
+    }, this.logError);
   };
 
   logError = error => {
