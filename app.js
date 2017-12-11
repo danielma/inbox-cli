@@ -179,7 +179,9 @@ class App extends React.Component {
   get messageSubjects() {
     return this.state.threads.reduce((memo, thread) => {
       const firstSubject = thread.messages[0].subject;
-      const restSubjects = thread.messages.slice(1).map(m => `  ${m.subject}`);
+      const restSubjects = thread.messages
+        .slice(1)
+        .map((m, index) => `  ${m.subject}${"\0".repeat(index)}`);
 
       return memo.concat([firstSubject, ...restSubjects]);
     }, []);
