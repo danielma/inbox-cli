@@ -121,8 +121,6 @@ class App extends React.Component {
       openURL(selectedMessage.externalURL, {
         background: true
       });
-    } else if (full === "C-l") {
-      openURL(selectedMessage.externalURL);
     } else if (full === "C-d") {
       modifyThread({
         auth: this.props.auth,
@@ -158,10 +156,7 @@ class App extends React.Component {
 
   get messages() {
     return this.state.threads.reduce((memo, thread) => {
-      const firstMessage = thread.messages[0];
-      const restMessages = thread.messages.slice(1);
-
-      return memo.concat([firstMessage, ...restMessages]);
+      return memo.concat(thread.messages);
     }, []);
   }
 
@@ -190,9 +185,11 @@ class App extends React.Component {
           items={messageSubjects}
           vi
           keys
-          mouse
-          onSelect={(_item, index) => {
+          onSelectItem={(_item, index) => {
             this.setState({ selectedIndex: index });
+          }}
+          onSelect={(_item, index) => {
+            openURL(messages[index].externalURL);
           }}
           onKeypress={this.handleMessageListKeypress}
           ref="messageList"
