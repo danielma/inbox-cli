@@ -21,7 +21,6 @@ class GmailThread {
 class GmailMessage {
   constructor(message) {
     this._message = message;
-    // console.log(message);
     this._headers = {};
     this._headers = message.payload.headers.reduce((memo, header) => {
       memo[header.name.toLowerCase()] = header.value;
@@ -82,7 +81,12 @@ function openURL(url, { background = false } = {}) {
 }
 
 class App extends React.Component {
-  state = { threads: [], selectedIndex: null, error: null };
+  state = {
+    threads: [],
+    selectedIndex: null,
+    error: null,
+    lastArchivedThreadId: null
+  };
 
   componentDidMount() {
     this.reloadInbox();
@@ -125,13 +129,26 @@ class App extends React.Component {
         userId: "me",
         id: selectedMessage.threadId,
         resource: { removeLabelIds: ["INBOX"] }
-      }).then(_message => this.reloadInbox(), this.logError);
+      }).then(thread => {
+        this.setState({ lastArchivedThreadId: thread.id });
+        this.reloadInbox();
+      }, this.logError);
     } else if (full === "C-p") {
       messageList.up();
       messageList.screen.render();
     } else if (full === "C-n") {
       messageList.down();
       messageList.screen.render();
+    } else if (full === "C-z" && this.state.lastArchivedThreadId) {
+      modifyThread({
+        auth: this.props.auth,
+        userId: "me",
+        id: this.state.lastArchivedThreadId,
+        resource: { addLabelIds: ["INBOX"] }
+      }).then(_thread => {
+        this.setState({ lastArchivedThreadId: null });
+        this.reloadInbox();
+      }, this.logError);
     }
   };
 
@@ -144,13 +161,22 @@ class App extends React.Component {
       const firstMessage = thread.messages[0];
       const restMessages = thread.messages.slice(1);
 
-      return memo.concat([firstMessage]);
+      return memo.concat([firstMessage, ...restMessages]);
+    }, []);
+  }
+
+  get messageSubjects() {
+    return this.state.threads.reduce((memo, thread) => {
+      const firstSubject = thread.messages[0].subject;
+      const restSubjects = thread.messages.slice(1).map(m => `  ${m.subject}`);
+
+      return memo.concat([firstSubject, ...restSubjects]);
     }, []);
   }
 
   render() {
     const { error } = this.state;
-    const { messages } = this;
+    const { messages, messageSubjects } = this;
     const selectedMessage =
       this.state.selectedIndex && messages[this.state.selectedIndex];
 
@@ -161,7 +187,7 @@ class App extends React.Component {
           height="20%"
           border={{ type: "line" }}
           style={{ border: { fg: "blue" }, selected: { bg: "gray" } }}
-          items={messages.map(m => m.subject)}
+          items={messageSubjects}
           vi
           keys
           mouse
