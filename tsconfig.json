@@ -5,7 +5,8 @@
     "strictNullChecks": true,
     "jsx": "react",
     "target": "es6",
-    "allowJs": true
+    "allowJs": true,
+    "typeRoots": ["./src/", "node_modules/@types"]
   },
   "include": ["./src/"]
 }

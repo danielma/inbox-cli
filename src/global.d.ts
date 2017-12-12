@@ -24,6 +24,7 @@ declare global {
     items: string[]
     vi?: boolean
     keys?: boolean
+    search?(searcher: (value: string) => void): void
     onSelectItem(item: string, index: number): void
     onSelect(item: string, index: number): void
     onKeypress(wut: any, key: object): void

@@ -1,11 +1,9 @@
-/// <reference path="./global.d.ts" />
-
-import React = require("react")
-import blessed = require("blessed")
-import { render } from "react-blessed/dist/fiber/fiber"
-import authorize = require("./authorize")
-import google = require("googleapis")
-import googleAuth = require("google-auth-library")
+import * as React from "react"
+const blessed = require("blessed")
+const { render } = require("react-blessed/dist/fiber/fiber")
+const authorize = require("./authorize")
+const google = require("googleapis")
+const googleAuth = require("google-auth-library")
 import { exec } from "child_process"
 import { inspect } from "util"
 
