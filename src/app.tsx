@@ -1,9 +1,9 @@
-import React from "react";
-import blessed from "blessed";
+import React = require("react")
+import blessed = require("blessed");
 import { render } from "react-blessed/dist/fiber/fiber";
-import authorize from "./authorize";
-import google from "googleapis";
-import googleAuth from "google-auth-library";
+import authorize = require("./authorize");
+import google = require("googleapis");
+import googleAuth = require("google-auth-library");
 import { exec } from "child_process";
 import { inspect } from "util";
 
@@ -12,6 +12,10 @@ const gmail = google.gmail("v1");
 const USE_TRELLO_DESKTOP = true;
 
 class GmailThread {
+  _thread: any;
+  messages: [GmailMessage];
+  snippet: String;
+
   constructor(thread) {
     this._thread = thread;
 
@@ -21,6 +25,10 @@ class GmailThread {
 }
 
 class GmailMessage {
+  _message: any;
+  _headers: object;
+  payload: object;
+  
   constructor(message) {
     this._message = message;
     this._headers = {};

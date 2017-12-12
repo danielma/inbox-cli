@@ -1,7 +1,7 @@
-import fs from "fs";
-import readline from "readline";
-import google from "googleapis";
-import googleAuth from "google-auth-library";
+const fs = require("fs");
+const readline = require("readline")
+const google = require("googleapis")
+const googleAuth = require("google-auth-library")
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/gmail-nodejs-quickstart.json
@@ -15,7 +15,7 @@ var TOKEN_DIR =
 var TOKEN_PATH = TOKEN_DIR + "gmail-nodejs-quickstart.json";
 
 // Load client secrets from a local file.
-export default function doTheThing() {
+module.exports = function doTheThing() {
   return new Promise((resolve, reject) => {
     fs.readFile("client_id.json", function processClientSecrets(err, content) {
       if (err) {
