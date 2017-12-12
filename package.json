@@ -17,7 +17,8 @@
     "react-blessed": "^0.2.0"
   },
   "scripts": {
-    "run": "node index.js"
+    "start": "node index.js",
+    "build": "babel ./src --out-dir ./dist"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.0.0-beta.31",
