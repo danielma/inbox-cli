@@ -9,6 +9,8 @@ import { inspect } from "util";
 
 const gmail = google.gmail("v1");
 
+const USE_TRELLO_DESKTOP = true;
+
 class GmailThread {
   constructor(thread) {
     this._thread = thread;
@@ -60,7 +62,15 @@ class GmailMessage {
   get trelloURL() {
     const match = this.plainText.match(/\((https:\/\/trello.com.+?)\)/);
 
-    return match && match[1];
+    if (!match) return null;
+
+    const originalURL = match[1];
+
+    if (USE_TRELLO_DESKTOP) {
+      return originalURL.replace("https://", "trello://");
+    } else {
+      return originalURL;
+    }
   }
 
   open({ background = false } = {}) {
