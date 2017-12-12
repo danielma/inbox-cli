@@ -204,8 +204,7 @@ class App extends React.Component {
   render() {
     const { error } = this.state;
     const { messages, messageSubjects } = this;
-    const selectedMessage =
-      this.state.selectedIndex && messages[this.state.selectedIndex];
+    const selectedMessage = messages[this.state.selectedIndex || 0];
 
     return (
       <element>
