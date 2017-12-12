@@ -4,10 +4,8 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react",
-    "target": "es5",
+    "target": "es6",
     "allowJs": true
   },
-  "include": [
-    "./src/"
-  ]
+  "include": ["./src/"]
 }

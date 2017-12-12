@@ -1,3 +1,5 @@
+/// <reference path="./global.d.ts" />
+
 import React = require("react")
 import blessed = require("blessed")
 import { render } from "react-blessed/dist/fiber/fiber"
@@ -6,19 +8,6 @@ import google = require("googleapis")
 import googleAuth = require("google-auth-library")
 import { exec } from "child_process"
 import { inspect } from "util"
-
-interface BlessedElement {}
-
-interface BlessedList extends BlessedElement {
-  focus(): void
-}
-
-declare namespace JSX {
-  export interface IntrinsicElements {
-    list: BlessedList
-    element: BlessedElement
-  }
-}
 
 const gmail = google.gmail("v1")
 
@@ -133,14 +122,28 @@ function openURL(url, { background = false } = {}) {
   return exec(`open ${backgroundOption} ${url}`)
 }
 
-class App extends React.Component {
-  private messageList: BlessedList
+interface IAppProps {
+  auth: object
+}
 
-  state = {
-    threads: [],
-    selectedIndex: null,
-    error: null,
-    lastArchivedThreadId: null
+interface IAppState {
+  threads: GmailThread[]
+  selectedIndex: number | null
+  error: any
+  lastArchivedThreadId: number | null
+}
+
+class App extends React.Component<IAppProps, IAppState> {
+  private messageList: BlessedListInstance
+
+  constructor(props: IAppProps) {
+    super(props)
+    this.state = {
+      threads: [],
+      selectedIndex: null,
+      error: null,
+      lastArchivedThreadId: null
+    }
   }
 
   componentDidMount() {
@@ -175,7 +178,7 @@ class App extends React.Component {
 
   handleMessageListKeypress = (_ch, key) => {
     const { full } = key
-    const { messageList } = this.refs
+    const { messageList } = this
     const { messages } = this
     const selectedMessage = messages[messageList.selected]
     if (full === "C-o") {
@@ -201,7 +204,7 @@ class App extends React.Component {
       userId: "me",
       id: threadId,
       resource: { removeLabelIds: ["INBOX"] }
-    }).then(thread => {
+    }).then((thread: any) => {
       this.setState({ lastArchivedThreadId: thread.id })
       this.reloadInbox()
     }, this.logError)
@@ -223,21 +226,26 @@ class App extends React.Component {
     this.setState({ error })
   }
 
-  get messages() {
+  get messages(): GmailMessage[] {
+    let messages: GmailMessage[] = []
+
     return this.state.threads.reduce((memo, thread) => {
       return memo.concat(thread.messages)
-    }, [])
+    }, messages)
   }
 
   get messageSubjects() {
+    let subjects: string[] = []
+    const nullChar = "\0"
+
     return this.state.threads.reduce((memo, thread) => {
       const firstSubject = thread.messages[0].subject
       const restSubjects = thread.messages
         .slice(1)
-        .map((m, index) => `  ${m.subject}${"\0".repeat(index)}`)
+        .map((m, index) => `  ${m.subject}${nullChar.repeat(index)}`)
 
       return memo.concat([firstSubject, ...restSubjects])
-    }, [])
+    }, subjects)
   }
 
   render() {
