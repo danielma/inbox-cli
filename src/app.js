@@ -45,7 +45,13 @@ class GmailMessage {
 
   get plainText() {
     const { parts } = this._message.payload;
+
+    if (!parts) return "";
+
     const plainText = parts.find(p => p.mimeType === "text/plain") || parts[0];
+
+    if (!plainText.body.data) return "";
+
     return new Buffer(plainText.body.data, "base64").toString("utf8");
   }
 
@@ -150,7 +156,7 @@ class App extends React.Component {
     const { messages } = this;
     const selectedMessage = messages[messageList.selected];
     if (full === "C-o") {
-      selectedMessage.open({ background: true });
+      selectedMessage.open({ background: true }).catch(this.logError);
     } else if (full === "C-d") {
       this.archiveThread(selectedMessage.threadId);
     } else if (full === "C-p") {
@@ -230,7 +236,7 @@ class App extends React.Component {
             this.setState({ selectedIndex: index });
           }}
           onSelect={(_item, index) => {
-            messages[index].open();
+            messages[index].open().catch(this.logError);
           }}
           onKeypress={this.handleMessageListKeypress}
           ref="messageList"
