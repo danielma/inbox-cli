@@ -2,8 +2,8 @@ import * as React from "react"
 const blessed = require("blessed")
 const { render } = require("react-blessed/dist/fiber/fiber")
 const authorize = require("./authorize")
-import { exec } from "child_process"
 import { inspect } from "util"
+const { openURL } = require("./utils")
 
 const USE_TRELLO_DESKTOP = true
 
@@ -92,11 +92,6 @@ class GmailMessage {
       }
     })
   }
-}
-
-function openURL(url, { background = false } = {}) {
-  const backgroundOption = background ? "-g" : ""
-  return exec(`open ${backgroundOption} ${url}`)
 }
 
 interface IAppProps {

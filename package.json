@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "blessed": "^0.1.81",
+    "chalk": "^2.3.0",
     "googleapis": "^23.0.0",
     "react": ">= 16.0.0",
     "react-blessed": "^0.2.0"
