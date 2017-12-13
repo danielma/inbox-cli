@@ -1,34 +1,38 @@
 {
   "name": "inbox-cli",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "Daniel Ma <drailskid@yahoo.com>",
+  "version": "1.0.0-alpha3",
+  "author": "Daniel Ma <drailskid@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/danielma/inbox-cli",
+  "bugs": {
+    "url": "https://github.com/danielma/inbox-cli/issues"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist/",
+    "src/*"
+  ],
+  "bin": {
+    "inbox-cli": "./dist/index.js"
+  },
   "dependencies": {
-    "@babel/cli": "^7.0.0-beta.31",
-    "@babel/core": "^7.0.0-beta.31",
-    "@babel/preset-env": "^7.0.0-beta.31",
-    "@babel/preset-react": "^7.0.0-beta.31",
-    "@babel/register": "^7.0.0-beta.31",
-    "@types/react": "^16.0.29",
     "blessed": "^0.1.81",
-    "google-auth-library": "^0.11.0",
-    "googleapis": "^22.2.0",
+    "googleapis": "^23.0.0",
     "react": ">= 16.0.0",
     "react-blessed": "^0.2.0"
   },
   "scripts": {
     "start": "node -r ts-node/register src/app.tsx",
-    "build": "babel ./src --out-dir ./dist"
+    "clear-dist": "rimraf dist",
+    "typescript-build": "tsc",
+    "build": "npm run clear-dist && npm run typescript-build",
+    "prepack": "npm run build"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.31",
-    "@types/es6-promise": "^0.0.33",
-    "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.0.2",
-    "eslint": "^4.11.0",
-    "eslint-plugin-prettier": "^2.3.1",
+    "@types/react": "^16.0.29",
+    "@types/request": "^2.0.9",
     "prettier": "^1.8.2",
+    "rimraf": "^2.6.2",
     "ts-node": "^4.0.1",
     "typescript": "^2.6.2"
   },
