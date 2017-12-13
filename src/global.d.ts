@@ -50,9 +50,9 @@ declare global {
   interface GmailAPIInstance {
     users: {
       threads: {
-        list(options: object): void
-        get(options: object): void
-        modify(options: object): void
+        list(options: object, cb: (err, response) => void): void
+        get(options: object, cb: (err, response) => void): void
+        modify(options: object, cb: (err, response) => void): void
       }
     }
   }

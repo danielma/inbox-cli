@@ -94,26 +94,19 @@ class GmailMessage {
   }
 }
 
-function promisify(fn) {
-  return function promisedFn(...args) {
-    return new Promise((resolve, reject) => {
-      fn(...args, (err, response) => {
-        if (err) {
-          reject(err)
-        }
-        resolve(response)
-      })
-    })
-  }
-}
-
 function openURL(url, { background = false } = {}) {
   const backgroundOption = background ? "-g" : ""
   return exec(`open ${backgroundOption} ${url}`)
 }
 
 interface IAppProps {
-  gmail: GmailAPIInstance
+  gmail: {
+    threads: {
+      list(options: object): Promise<{ threads: any[] }>
+      get(options: object): Promise<any>
+      modify(options: object): Promise<any>
+    }
+  }
 }
 
 interface IAppState {
@@ -150,14 +143,15 @@ class App extends React.Component<IAppProps, IAppState> {
     this.setState({ error: "loading" })
     const { gmail } = this.props
     const userId = "me"
-    return promisify(gmail.users.threads.list)({
-      userId,
-      labelIds: ["INBOX"]
-    })
+    return gmail.threads
+      .list({
+        userId,
+        labelIds: ["INBOX"]
+      })
       .then(({ threads }) => {
         return Promise.all(
           (threads || []).map(thread => {
-            return promisify(gmail.users.threads.get)({ userId, id: thread.id })
+            return gmail.threads.get({ userId, id: thread.id })
           })
         )
       })
@@ -188,25 +182,29 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   archiveThread = threadId => {
-    promisify(this.props.gmail.users.threads.modify)({
-      userId: "me",
-      id: threadId,
-      resource: { removeLabelIds: ["INBOX"] }
-    }).then((thread: any) => {
-      this.setState({ lastArchivedThreadId: thread.id })
-      this.reloadInbox()
-    }, this.logError)
+    this.props.gmail.threads
+      .modify({
+        userId: "me",
+        id: threadId,
+        resource: { removeLabelIds: ["INBOX"] }
+      })
+      .then((thread: any) => {
+        this.setState({ lastArchivedThreadId: thread.id })
+        this.reloadInbox()
+      }, this.logError)
   }
 
   unarchiveLastArchivedThread = () => {
-    promisify(this.props.gmail.users.threads.modify)({
-      userId: "me",
-      id: this.state.lastArchivedThreadId,
-      resource: { addLabelIds: ["INBOX"] }
-    }).then(_thread => {
-      this.setState({ lastArchivedThreadId: null })
-      this.reloadInbox()
-    }, this.logError)
+    this.props.gmail.threads
+      .modify({
+        userId: "me",
+        id: this.state.lastArchivedThreadId,
+        resource: { addLabelIds: ["INBOX"] }
+      })
+      .then(_thread => {
+        this.setState({ lastArchivedThreadId: null })
+        this.reloadInbox()
+      }, this.logError)
   }
 
   logError = error => {
@@ -286,7 +284,22 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 }
 
-authorize().then(gmail => {
+function promisify(
+  fn: (options: object, cb: (err, response) => void) => void
+): (options: object) => Promise<any> {
+  return function promisedFn(options) {
+    return new Promise((resolve, reject) => {
+      fn(options, (err, response) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(response)
+      })
+    })
+  }
+}
+
+authorize().then((gmail: GmailAPIInstance) => {
   // Creating our screen
   const screen = blessed.screen({
     autoPadding: true,
@@ -299,5 +312,13 @@ authorize().then(gmail => {
     return process.exit(0)
   })
 
-  const component = render(<App gmail={gmail} />, screen)
+  const gmailApi = {
+    threads: {
+      list: promisify(gmail.users.threads.list),
+      get: promisify(gmail.users.threads.get),
+      modify: promisify(gmail.users.threads.modify)
+    }
+  }
+
+  const component = render(<App gmail={gmailApi} />, screen)
 })
