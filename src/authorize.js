@@ -2,6 +2,8 @@ const fs = require("fs")
 const readline = require("readline")
 const google = require("googleapis")
 const googleAuth = require("google-auth-library")
+const clientInfo = require("./client-id")
+const { inspect } = require("util")
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/gmail-nodejs-quickstart.json
@@ -11,23 +13,22 @@ var SCOPES = [
 ]
 var TOKEN_DIR =
   (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/.credentials/"
-var TOKEN_PATH = TOKEN_DIR + "gmail-nodejs-quickstart.json"
+var TOKEN_PATH = TOKEN_DIR + "inbox-cli-client.json"
+
+function puts(...strings) {
+  strings.forEach(s => process.stdout.write(s))
+  process.stdout.write("\n")
+}
 
 // Load client secrets from a local file.
 module.exports = function doTheThing() {
   return new Promise((resolve, reject) => {
-    fs.readFile("client_id.json", function processClientSecrets(err, content) {
-      if (err) {
-        console.log("Error loading client secret file: " + err)
-        return
-      }
-      // Authorize a client with the loaded credentials, then call the
-      // Gmail API.
-      authorize(JSON.parse(content)).then(auth => {
-        const gmail = google.gmail({ version: "v1", auth })
+    // Authorize a client with the loaded credentials, then call the
+    // Gmail API.
+    authorize(clientInfo).then(auth => {
+      const gmail = google.gmail({ version: "v1", auth })
 
-        resolve(gmail)
-      })
+      resolve(gmail)
     })
   })
 }
@@ -50,7 +51,8 @@ function authorize(credentials) {
   return new Promise((resolve, reject) => {
     fs.readFile(TOKEN_PATH, function(err, token) {
       if (err) {
-        console.log(err)
+        if (err.code !== "ENOENT") puts(inspect(err))
+
         getNewToken(oauth2Client).then(resolve)
       } else {
         oauth2Client.credentials = JSON.parse(token)
@@ -72,7 +74,7 @@ function getNewToken(oauth2Client) {
     access_type: "offline",
     scope: SCOPES
   })
-  console.log("Authorize this app by visiting this url: ", authUrl)
+  puts("Authorize this app by visiting this url: ", authUrl)
   var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -83,7 +85,7 @@ function getNewToken(oauth2Client) {
       rl.close()
       oauth2Client.getToken(code, function(err, token) {
         if (err) {
-          console.log("Error while trying to retrieve access token", err)
+          puts("Error while trying to retrieve access token", err)
           reject(err)
           return
         }
@@ -109,5 +111,5 @@ function storeToken(token) {
     }
   }
   fs.writeFile(TOKEN_PATH, JSON.stringify(token))
-  console.log("Token stored to " + TOKEN_PATH)
+  puts("Token stored to " + TOKEN_PATH)
 }
