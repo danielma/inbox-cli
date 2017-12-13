@@ -10,6 +10,12 @@
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@types/diff/-/diff-3.2.2.tgz#4d6f45537322a7a420d353a0939513c7e96d14a6"
 
+"@types/form-data@*":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@types/form-data/-/form-data-2.2.1.tgz#ee2b3b8eaa11c0938289953606b745b738c54b1e"
+  dependencies:
+    "@types/node" "*"
+
 "@types/minimist@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.0.tgz#69a23a3ad29caf0097f06eda59b361ee2f0639f6"
@@ -31,6 +37,13 @@
 "@types/react@^16.0.29":
   version "16.0.29"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.0.29.tgz#4eea6a8de9f40ca71d580ae7a9f3b4b77b368de8"
+
+"@types/request@^2.0.9":
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/@types/request/-/request-2.0.9.tgz#125b8a60d8a439e8d87e6d1335c61cccdc18343a"
+  dependencies:
+    "@types/form-data" "*"
+    "@types/node" "*"
 
 "@types/source-map-support@^0.4.0":
   version "0.4.0"

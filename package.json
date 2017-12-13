@@ -1,17 +1,19 @@
 {
   "name": "inbox-cli",
-  "version": "1.0.0-alpha2",
-  "main": "index.js",
+  "version": "1.0.0-alpha3",
   "author": "Daniel Ma <drailskid@yahoo.com>",
   "license": "MIT",
   "homepage": "https://github.com/danielma/inbox-cli",
   "bugs": {
     "url": "https://github.com/danielma/inbox-cli/issues"
   },
-  "main": "./dist/app.js",
-  "files": "./dist/*",
+  "main": "./dist/index.js",
+  "files": [
+    "dist/",
+    "src/*"
+  ],
   "bin": {
-    "inbox-cli": "./dist/app.js"
+    "inbox-cli": "./dist/index.js"
   },
   "dependencies": {
     "blessed": "^0.1.81",
@@ -23,10 +25,12 @@
     "start": "node -r ts-node/register src/app.tsx",
     "clear-dist": "rimraf dist",
     "typescript-build": "tsc",
-    "build": "npm run clear-dist && npm run typescript-build"
+    "build": "npm run clear-dist && npm run typescript-build",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/react": "^16.0.29",
+    "@types/request": "^2.0.9",
     "prettier": "^1.8.2",
     "rimraf": "^2.6.2",
     "ts-node": "^4.0.1",
