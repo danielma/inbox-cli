@@ -2,12 +2,8 @@ import * as React from "react"
 const blessed = require("blessed")
 const { render } = require("react-blessed/dist/fiber/fiber")
 const authorize = require("./authorize")
-const google = require("googleapis")
-const googleAuth = require("google-auth-library")
 import { exec } from "child_process"
 import { inspect } from "util"
-
-const gmail = google.gmail("v1")
 
 const USE_TRELLO_DESKTOP = true
 
@@ -111,17 +107,13 @@ function promisify(fn) {
   }
 }
 
-const listThreads = promisify(gmail.users.threads.list)
-const getThread = promisify(gmail.users.threads.get)
-const modifyThread = promisify(gmail.users.threads.modify)
-
 function openURL(url, { background = false } = {}) {
   const backgroundOption = background ? "-g" : ""
   return exec(`open ${backgroundOption} ${url}`)
 }
 
 interface IAppProps {
-  auth: object
+  gmail: GmailAPIInstance
 }
 
 interface IAppState {
@@ -156,17 +148,16 @@ class App extends React.Component<IAppProps, IAppState> {
 
   reloadInbox = () => {
     this.setState({ error: "loading" })
-    const { auth } = this.props
+    const { gmail } = this.props
     const userId = "me"
-    return listThreads({
-      auth,
+    return promisify(gmail.users.threads.list)({
       userId,
       labelIds: ["INBOX"]
     })
       .then(({ threads }) => {
         return Promise.all(
           (threads || []).map(thread => {
-            return getThread({ auth, userId, id: thread.id })
+            return promisify(gmail.users.threads.get)({ userId, id: thread.id })
           })
         )
       })
@@ -197,8 +188,7 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   archiveThread = threadId => {
-    modifyThread({
-      auth: this.props.auth,
+    promisify(this.props.gmail.users.threads.modify)({
       userId: "me",
       id: threadId,
       resource: { removeLabelIds: ["INBOX"] }
@@ -209,8 +199,7 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   unarchiveLastArchivedThread = () => {
-    modifyThread({
-      auth: this.props.auth,
+    promisify(this.props.gmail.users.threads.modify)({
       userId: "me",
       id: this.state.lastArchivedThreadId,
       resource: { addLabelIds: ["INBOX"] }
@@ -297,7 +286,7 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 }
 
-authorize().then(auth => {
+authorize().then(gmail => {
   // Creating our screen
   const screen = blessed.screen({
     autoPadding: true,
@@ -310,5 +299,5 @@ authorize().then(auth => {
     return process.exit(0)
   })
 
-  const component = render(<App auth={auth} />, screen)
+  const component = render(<App gmail={gmail} />, screen)
 })

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./dist/",
-    "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react",
+    "module": "commonjs",
     "target": "es6",
     "allowJs": true,
     "typeRoots": ["./src/", "node_modules/@types"]

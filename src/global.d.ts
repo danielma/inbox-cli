@@ -4,7 +4,7 @@ export {}
 
 declare global {
   interface BlessedReactNode {
-    children?: (JSX.Element | null)[] | string
+    children?: (any | null)[] | string
     ref?(BlessedReactNode): void
   }
 
@@ -45,6 +45,16 @@ declare global {
     selected: number
     up(): void
     down(): void
+  }
+
+  interface GmailAPIInstance {
+    users: {
+      threads: {
+        list(options: object): void
+        get(options: object): void
+        modify(options: object): void
+      }
+    }
   }
 
   namespace JSX {
