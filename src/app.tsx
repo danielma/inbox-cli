@@ -22,12 +22,6 @@ class GmailThread {
     this.snippet = this._thread.snippet
     this.id = thread.id
   }
-
-  get marker() {
-    if (this.messages.length === 1) return " "
-
-    return this.isOpen ? "▼" : "▶"
-  }
 }
 
 class GmailMessage {
@@ -119,6 +113,7 @@ interface IAppState {
   selectedIndex: number | null
   error: any
   lastArchivedThreadId: number | null
+  openThreads: { [threadId: string]: boolean }
 }
 
 class App extends React.Component<IAppProps, IAppState> {
@@ -128,6 +123,7 @@ class App extends React.Component<IAppProps, IAppState> {
     super(props)
     this.state = {
       threads: [],
+      openThreads: {},
       selectedIndex: null,
       error: null,
       lastArchivedThreadId: null
@@ -208,26 +204,16 @@ class App extends React.Component<IAppProps, IAppState> {
     } else if (full === "r") {
       this.reloadInbox()
     } else if (full === "l" || full === "right") {
-      this.setState((state, _props) => {
-        const threadIndex = state.threads.findIndex(t => t.id == selectedMessage.threadId)
+      this.setState(({ openThreads }) => {
+        openThreads[selectedMessage.threadId] = true
 
-        if (threadIndex !== -1) {
-          const { threads } = state
-          threads[threadIndex].isOpen = true
-
-          return { threads }
-        }
+        return { openThreads }
       })
     } else if (full === "h" || full === "left") {
-      this.setState((state, _props) => {
-        const threadIndex = state.threads.findIndex(t => t.id == selectedMessage.threadId)
+      this.setState(({ openThreads }) => {
+        delete openThreads[selectedMessage.threadId]
 
-        if (threadIndex !== -1) {
-          const { threads } = state
-          threads[threadIndex].isOpen = false
-
-          return { threads }
-        }
+        return { openThreads }
       })
     }
   }
@@ -266,7 +252,7 @@ class App extends React.Component<IAppProps, IAppState> {
     let messages: GmailMessage[] = []
 
     return this.state.threads.reduce((memo, thread) => {
-      if (thread.isOpen) {
+      if (this.state.openThreads[thread.id]) {
         return memo.concat(thread.messages)
       } else {
         return memo.concat([thread.messages[0]])
@@ -277,17 +263,20 @@ class App extends React.Component<IAppProps, IAppState> {
   get messageSubjects() {
     let subjects: string[] = []
     const nullChar = "\0"
+    // ▶ ▼ █
 
     return this.state.threads.reduce((memo, thread) => {
-      if (thread.isOpen) {
-        const firstSubject = `${thread.marker} ${thread.messages[0].subject}`
+      if (this.state.openThreads[thread.id]) {
+        const marker = thread.messages.length > 1 ? "▼" : " "
+        const firstSubject = `${marker} ${thread.messages[0].subject}`
         const restSubjects = thread.messages
           .slice(1)
           .map((m, index) => `    ${m.subject}${nullChar.repeat(index)}`)
 
         return memo.concat([firstSubject, ...restSubjects])
       } else {
-        return memo.concat([`${thread.marker} ${thread.messages[0].subject}`])
+        const marker = thread.messages.length > 1 ? "▶" : " "
+        return memo.concat([`${marker} ${thread.messages[0].subject}`])
       }
     }, subjects)
   }
