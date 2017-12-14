@@ -4,7 +4,7 @@ export {}
 
 declare global {
   interface BlessedReactNode {
-    children?: (any | null)[] | string
+    children?: (any | null)[] | string | null
     ref?(BlessedReactNode): void
   }
 
@@ -14,8 +14,13 @@ declare global {
     border?: object
     style?: object
     top?: string
+    bottom?: string
     mouse?: boolean
     scrollable?: boolean
+    scrollbar?: object
+    tags?: boolean
+    content?: string | null
+    index?: number
   }
 
   interface BlessedBox extends BlessedElement {}
@@ -38,6 +43,8 @@ declare global {
 
   interface BlessedReactElementInstance extends BlessedReactNodeInstance {
     screen: BlessedReactScreenInstance
+    strWidth(string: string): number
+    width: number
   }
 
   interface BlessedListInstance extends BlessedReactElementInstance {
