@@ -20,6 +20,7 @@ declare global {
     scrollbar?: object
     tags?: boolean
     content?: string | null
+    index?: number
   }
 
   interface BlessedBox extends BlessedElement {}

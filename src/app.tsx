@@ -170,8 +170,12 @@ class App extends React.Component<IAppProps, IAppState> {
       }, this.logError)
   }
 
+  private errorTimeout: NodeJS.Timer | null = null
+
   logError = error => {
     this.setState({ error })
+    this.errorTimeout && clearTimeout(this.errorTimeout)
+    this.errorTimeout = setTimeout(() => this.setState({ error: null }), 5000)
   }
 
   private statusTimeout: NodeJS.Timer | null = null
@@ -233,9 +237,7 @@ class App extends React.Component<IAppProps, IAppState> {
           items={messageSubjects}
           keys
           mouse
-          onSelectItem={(_item, index) => {
-            this.setState({ selectedIndex: index })
-          }}
+          onSelectItem={(_i, selectedIndex) => this.setState({ selectedIndex })}
           onSelect={(_item, index) => {
             messages[index]
               .open()
@@ -250,7 +252,7 @@ class App extends React.Component<IAppProps, IAppState> {
           border={{ type: "line" }}
           style={{ border: { fg: "blue" }, selected: { bg: "gray" } }}
           top="20%"
-          height={(error ? "60%" : "80%") + "-2"}
+          height="80%"
           width="100%"
           mouse
           scrollable
@@ -261,25 +263,29 @@ class App extends React.Component<IAppProps, IAppState> {
           <box
             border={{ type: "line" }}
             style={{ border: { fg: "red" } }}
-            top="70%"
+            top="80%"
             height="20%"
             width="100%"
             mouse
             scrollable
+            index={2}
           >
             {inspect(error)}
           </box>
         )}
-        <box
-          border={{ type: "line" }}
-          style={{ border: { fg: "gray" } }}
-          bottom="0"
-          height="0%+3"
-          width="100%"
-          scrollable
-          tags
-          content={status || ""}
-        />
+        {status && (
+          <box
+            border={{ type: "line" }}
+            style={{ border: { fg: "gray" } }}
+            bottom="0"
+            height="0%+3"
+            width="100%"
+            scrollable
+            tags
+            content={status}
+            index={1}
+          />
+        )}
       </element>
     )
   }
