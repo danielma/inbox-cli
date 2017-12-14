@@ -124,7 +124,7 @@ class App extends React.Component<IAppProps, IAppState> {
         .open({ background: true })
         .then(() => this.logStatus(`open ${selectedMessage.externalURL}`))
         .catch(this.logError)
-    } else if (full === "C-d") {
+    } else if (full === "d") {
       this.archiveThread(selectedMessage.threadId)
     } else if (full === "C-z" && this.state.lastArchivedThreadId) {
       this.unarchiveLastArchivedThread()
@@ -267,7 +267,7 @@ class App extends React.Component<IAppProps, IAppState> {
           border={{ type: "line" }}
           style={{
             border: { fg: "blue" },
-            selected: { bg: "blue" }
+            selected: { bg: "blue", fg: "black" }
           }}
           items={messageSubjects}
           tags
@@ -282,7 +282,7 @@ class App extends React.Component<IAppProps, IAppState> {
           }}
           onKeypress={this.handleMessageListKeypress}
           ref={ref => (this.messageList = ref)}
-          scrollbar={{ style: { bg: "gray" }, track: { bg: "white" } }}
+          scrollbar={{ style: { bg: "white" }, track: { bg: "gray" } }}
         />
         <box
           border={{ type: "line" }}
