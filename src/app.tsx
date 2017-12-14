@@ -232,7 +232,7 @@ class App extends React.Component<IAppProps, IAppState> {
 
     return (
       withRightAlignedText(subject, {
-        right: formatDate(message.date),
+        right: `{gray-fg}${formatDate(message.date)}{/}`,
         list: this.messageList
       }) + "\0".repeat(index)
     )
