@@ -228,7 +228,7 @@ class App extends React.Component<IAppProps, IAppState> {
       <element>
         <list
           width="100%"
-          height="20%"
+          height="25%"
           border={{ type: "line" }}
           style={{
             border: { fg: "blue" },
@@ -251,8 +251,8 @@ class App extends React.Component<IAppProps, IAppState> {
         <box
           border={{ type: "line" }}
           style={{ border: { fg: "blue" }, selected: { bg: "gray" } }}
-          top="20%"
-          height="80%"
+          top="25%"
+          height="75%"
           width="100%"
           mouse
           scrollable
