@@ -1,4 +1,5 @@
 const { openURL } = require("./utils")
+const chalk = require("chalk")
 
 const USE_TRELLO_DESKTOP = true
 
@@ -23,6 +24,8 @@ export class GmailMessage {
   _message: any
   _headers: object
   payload: object
+  id: string
+  threadId: string
 
   constructor(message) {
     this._message = message
@@ -32,18 +35,20 @@ export class GmailMessage {
       return memo
     }, {})
     this.payload = message.payload
-  }
-
-  get id() {
-    return this._message.id
-  }
-
-  get threadId() {
-    return this._message.threadId
+    this.threadId = message.threadId
+    this.id = message.id
   }
 
   get subject() {
-    return this._headers["subject"]
+    let subject = this._headers["subject"].replace(/^re: /i, "")
+
+    if (this.isFromGithub) {
+      subject = chalk.gray("\uf09b  ") + subject
+    } else if (this.isFromTrello) {
+      subject = chalk.blue("\uf181  ") + subject
+    }
+
+    return subject
   }
 
   get plainText() {
@@ -62,13 +67,21 @@ export class GmailMessage {
     return this.githubURL || this.trelloURL
   }
 
-  get githubURL() {
+  private get isFromTrello() {
+    return !!this.trelloURL
+  }
+
+  private get isFromGithub() {
+    return !!this.githubURL
+  }
+
+  private get githubURL() {
     const match = this.plainText.match(/github:\s+(http.+)/im)
 
     return match && match[1]
   }
 
-  get trelloURL() {
+  private get trelloURL() {
     const match = this.plainText.match(/\((https:\/\/trello.com.+?)\)/)
 
     if (!match) return null

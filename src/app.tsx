@@ -144,6 +144,7 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   archiveThread = threadId => {
+    this.logStatus(`archiving ${threadId}`)
     this.props.gmail.threads
       .modify({
         userId: "me",
