@@ -22,6 +22,12 @@ class GmailThread {
     this.snippet = this._thread.snippet
     this.id = thread.id
   }
+
+  get marker() {
+    if (this.messages.length === 1) return " "
+
+    return this.isOpen ? "▼" : "▶"
+  }
 }
 
 class GmailMessage {
@@ -271,20 +277,17 @@ class App extends React.Component<IAppProps, IAppState> {
   get messageSubjects() {
     let subjects: string[] = []
     const nullChar = "\0"
-    // ▶ ▼ █
 
     return this.state.threads.reduce((memo, thread) => {
       if (thread.isOpen) {
-        const marker = thread.messages.length > 1 ? "▼" : " "
-        const firstSubject = `${marker} ${thread.messages[0].subject}`
+        const firstSubject = `${thread.marker} ${thread.messages[0].subject}`
         const restSubjects = thread.messages
           .slice(1)
           .map((m, index) => `    ${m.subject}${nullChar.repeat(index)}`)
 
         return memo.concat([firstSubject, ...restSubjects])
       } else {
-        const marker = thread.messages.length > 1 ? "▶" : " "
-        return memo.concat([`${marker} ${thread.messages[0].subject}`])
+        return memo.concat([`${thread.marker} ${thread.messages[0].subject}`])
       }
     }, subjects)
   }
