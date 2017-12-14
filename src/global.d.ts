@@ -45,6 +45,8 @@ declare global {
     selected: number
     up(): void
     down(): void
+    select(index: number): void
+    items: string[]
   }
 
   interface GmailAPIInstance {
