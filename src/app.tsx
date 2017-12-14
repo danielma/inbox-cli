@@ -214,6 +214,13 @@ class App extends React.Component<IAppProps, IAppState> {
         delete openThreads[selectedMessage.threadId]
 
         return { openThreads }
+      }, () => {
+        const thread = this.state.threads.find(t => t.id == selectedMessage.threadId)
+        if (!thread) throw "no thread!"
+
+        const message = thread.messages[0]
+        messageList.select(this.messages.findIndex(m => m.id == message.id))
+        messageList.screen.render()
       })
     }
   }
