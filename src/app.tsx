@@ -211,7 +211,19 @@ class App extends React.Component<IAppProps, IAppState> {
   get messageSubjects() {
     let subjects: string[] = []
     const nullChar = "\0"
-    // ▶ ▼ █
+    const width = this.messageList ? this.messageList.width : 0
+
+    const withRight = (string, { right }) => {
+      if (width > 0) {
+        const stringWidth = this.messageList.strWidth(string)
+        const rightWidth = this.messageList.strWidth(right)
+        const padding = width - stringWidth - rightWidth - 3
+        // return string + " " + `str: ${stringWidth} right: ${rightWidth} width: ${width} padding: ${padding}`
+        return string + (" ".repeat(padding)) + right
+      } else {
+        return string
+      }
+    }
 
     return this.state.threads.reduce((memo, thread) => {
       if (this.state.openThreads[thread.id]) {
@@ -224,7 +236,7 @@ class App extends React.Component<IAppProps, IAppState> {
         return memo.concat([firstSubject, ...restSubjects])
       } else {
         const marker = thread.messages.length > 1 ? "▶" : " "
-        return memo.concat([`${marker} ${thread.messages[0].subject} {right}hi{/right}`])
+        return memo.concat([withRight(`${marker} ${thread.messages[0].subject}`, { right: "marxism" })])
       }
     }, subjects)
   }

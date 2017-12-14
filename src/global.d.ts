@@ -43,6 +43,8 @@ declare global {
 
   interface BlessedReactElementInstance extends BlessedReactNodeInstance {
     screen: BlessedReactScreenInstance
+    strWidth(string: string): number
+    width: number
   }
 
   interface BlessedListInstance extends BlessedReactElementInstance {
