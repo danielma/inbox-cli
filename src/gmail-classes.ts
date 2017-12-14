@@ -10,8 +10,6 @@ export class GmailThread {
   snippet: string
   id: string
 
-  isOpen = false
-
   constructor(thread) {
     this._thread = thread
 

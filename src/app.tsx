@@ -3,7 +3,10 @@ const blessed = require("blessed")
 const { render } = require("react-blessed/dist/fiber/fiber")
 const authorize = require("./authorize")
 import { GmailMessage, GmailThread } from "./gmail-classes"
+import { threads as fakeThreads } from "./fake-threads"
 import { inspect } from "util"
+
+const FAKE_IT = process.argv.indexOf("--fake") > -1
 
 interface IAppProps {
   gmail: {
@@ -49,10 +52,17 @@ class App extends React.Component<IAppProps, IAppState> {
     setInterval(this.reloadInbox, 30000)
   }
 
+  reloadFakeInbox = () => {
+    this.setState({ threads: fakeThreads })
+  }
+
   reloadInbox = () => {
     this.logStatus("loading")
     const { gmail } = this.props
     const userId = "me"
+
+    if (FAKE_IT) return this.reloadFakeInbox()
+
     return gmail.threads
       .list({
         userId,
@@ -214,7 +224,7 @@ class App extends React.Component<IAppProps, IAppState> {
         return memo.concat([firstSubject, ...restSubjects])
       } else {
         const marker = thread.messages.length > 1 ? "▶" : " "
-        return memo.concat([`${marker} ${thread.messages[0].subject}`])
+        return memo.concat([`${marker} ${thread.messages[0].subject} {right}hi{/right}`])
       }
     }, subjects)
   }
@@ -235,6 +245,7 @@ class App extends React.Component<IAppProps, IAppState> {
             selected: { bg: "gray" }
           }}
           items={messageSubjects}
+          tags
           keys
           mouse
           onSelectItem={(_i, selectedIndex) => this.setState({ selectedIndex })}
