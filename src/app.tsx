@@ -2,21 +2,25 @@ import * as React from "react"
 const blessed = require("blessed")
 const { render } = require("react-blessed/dist/fiber/fiber")
 const authorize = require("./authorize")
-import { exec } from "child_process"
 import { inspect } from "util"
+const { openURL } = require("./utils")
 
 const USE_TRELLO_DESKTOP = true
 
 class GmailThread {
   _thread: any
   messages: [GmailMessage]
-  snippet: String
+  snippet: string
+  id: string
+
+  isOpen = false
 
   constructor(thread) {
     this._thread = thread
 
-    this.messages = thread.messages.map(message => new GmailMessage(message))
+    this.messages = thread.messages.reverse().map(message => new GmailMessage(message))
     this.snippet = this._thread.snippet
+    this.id = thread.id
   }
 }
 
@@ -94,11 +98,6 @@ class GmailMessage {
   }
 }
 
-function openURL(url, { background = false } = {}) {
-  const backgroundOption = background ? "-g" : ""
-  return exec(`open ${backgroundOption} ${url}`)
-}
-
 interface IAppProps {
   gmail: {
     threads: {
@@ -114,6 +113,7 @@ interface IAppState {
   selectedIndex: number | null
   error: any
   lastArchivedThreadId: number | null
+  openThreads: { [threadId: string]: boolean }
 }
 
 class App extends React.Component<IAppProps, IAppState> {
@@ -123,6 +123,7 @@ class App extends React.Component<IAppProps, IAppState> {
     super(props)
     this.state = {
       threads: [],
+      openThreads: {},
       selectedIndex: null,
       error: null,
       lastArchivedThreadId: null
@@ -159,8 +160,38 @@ class App extends React.Component<IAppProps, IAppState> {
       .then(threads => this.setState({ threads, error: null }))
   }
 
+  handleMessageListMovement = key => {
+    const { full } = key
+    const { messageList } = this
+
+    let handled = false
+
+    if (full === "C-p" || full === "k") {
+      messageList.up()
+      handled = true
+    } else if (full === "C-n" || full === "j") {
+      messageList.down()
+      handled = true
+    } else if (full === "g") {
+      messageList.select(0)
+      handled = true
+    } else if (full === "S-g") {
+      messageList.select(messageList.items.length - 1)
+      handled = true
+    }
+
+    if (handled) {
+      messageList.screen.render()
+    }
+
+    return handled
+  }
+
   handleMessageListKeypress = (_ch, key) => {
     const { full } = key
+
+    if (this.handleMessageListMovement(key)) return
+
     const { messageList } = this
     const { messages } = this
     const selectedMessage = messages[messageList.selected]
@@ -168,16 +199,29 @@ class App extends React.Component<IAppProps, IAppState> {
       selectedMessage.open({ background: true }).catch(this.logError)
     } else if (full === "C-d") {
       this.archiveThread(selectedMessage.threadId)
-    } else if (full === "C-p") {
-      messageList.up()
-      messageList.screen.render()
-    } else if (full === "C-n") {
-      messageList.down()
-      messageList.screen.render()
     } else if (full === "C-z" && this.state.lastArchivedThreadId) {
       this.unarchiveLastArchivedThread()
     } else if (full === "r") {
       this.reloadInbox()
+    } else if (full === "l" || full === "right") {
+      this.setState(({ openThreads }) => {
+        openThreads[selectedMessage.threadId] = true
+
+        return { openThreads }
+      })
+    } else if (full === "h" || full === "left") {
+      this.setState(({ openThreads }) => {
+        delete openThreads[selectedMessage.threadId]
+
+        return { openThreads }
+      }, () => {
+        const thread = this.state.threads.find(t => t.id == selectedMessage.threadId)
+        if (!thread) throw "no thread!"
+
+        const message = thread.messages[0]
+        messageList.select(this.messages.findIndex(m => m.id == message.id))
+        messageList.screen.render()
+      })
     }
   }
 
@@ -215,21 +259,32 @@ class App extends React.Component<IAppProps, IAppState> {
     let messages: GmailMessage[] = []
 
     return this.state.threads.reduce((memo, thread) => {
-      return memo.concat(thread.messages)
+      if (this.state.openThreads[thread.id]) {
+        return memo.concat(thread.messages)
+      } else {
+        return memo.concat([thread.messages[0]])
+      }
     }, messages)
   }
 
   get messageSubjects() {
     let subjects: string[] = []
     const nullChar = "\0"
+    // ▶ ▼ █
 
     return this.state.threads.reduce((memo, thread) => {
-      const firstSubject = thread.messages[0].subject
-      const restSubjects = thread.messages
-        .slice(1)
-        .map((m, index) => `  ${m.subject}${nullChar.repeat(index)}`)
+      if (this.state.openThreads[thread.id]) {
+        const marker = thread.messages.length > 1 ? "▼" : " "
+        const firstSubject = `${marker} ${thread.messages[0].subject}`
+        const restSubjects = thread.messages
+          .slice(1)
+          .map((m, index) => `    ${m.subject}${nullChar.repeat(index)}`)
 
-      return memo.concat([firstSubject, ...restSubjects])
+        return memo.concat([firstSubject, ...restSubjects])
+      } else {
+        const marker = thread.messages.length > 1 ? "▶" : " "
+        return memo.concat([`${marker} ${thread.messages[0].subject}`])
+      }
     }, subjects)
   }
 
@@ -246,7 +301,6 @@ class App extends React.Component<IAppProps, IAppState> {
           border={{ type: "line" }}
           style={{ border: { fg: "blue" }, selected: { bg: "gray" } }}
           items={messageSubjects}
-          vi
           keys
           onSelectItem={(_item, index) => {
             this.setState({ selectedIndex: index })

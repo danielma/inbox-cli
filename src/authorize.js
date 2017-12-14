@@ -4,6 +4,8 @@ const google = require("googleapis")
 const googleAuth = require("google-auth-library")
 const clientInfo = require("./client-id")
 const { inspect } = require("util")
+const { openURL } = require("./utils")
+const chalk = require("chalk")
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/gmail-nodejs-quickstart.json
@@ -33,6 +35,13 @@ module.exports = function doTheThing() {
   })
 }
 
+function sayHello() {
+  puts("👋  ", chalk.bold.green("Welcome to inbox-cli!"))
+  puts("")
+  puts("For inbox-cli to work, it needs to authorize with GMail.")
+  puts("")
+}
+
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
@@ -52,6 +61,8 @@ function authorize(credentials) {
     fs.readFile(TOKEN_PATH, function(err, token) {
       if (err) {
         if (err.code !== "ENOENT") puts(inspect(err))
+
+        sayHello()
 
         getNewToken(oauth2Client).then(resolve)
       } else {
@@ -74,24 +85,29 @@ function getNewToken(oauth2Client) {
     access_type: "offline",
     scope: SCOPES
   })
-  puts("Authorize this app by visiting this url: ", authUrl)
-  var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  })
 
   return new Promise((resolve, reject) => {
-    rl.question("Enter the code from that page here: ", function(code) {
-      rl.close()
-      oauth2Client.getToken(code, function(err, token) {
-        if (err) {
-          puts("Error while trying to retrieve access token", err)
-          reject(err)
-          return
-        }
-        oauth2Client.credentials = token
-        storeToken(token)
-        resolve(oauth2Client)
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false
+    })
+
+    rl.question("Press enter to open the OAuth authorization screen", function() {
+      openURL(authUrl)
+
+      rl.question("Enter the code from that page here: ", function(code) {
+        rl.close()
+        oauth2Client.getToken(code, function(err, token) {
+          if (err) {
+            puts("Error while trying to retrieve access token", err)
+            reject(err)
+            return
+          }
+          oauth2Client.credentials = token
+          storeToken(token)
+          resolve(oauth2Client)
+        })
       })
     })
   })
