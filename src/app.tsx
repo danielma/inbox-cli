@@ -6,6 +6,7 @@ import { GmailMessage, GmailThread } from "./gmail-classes"
 import { threads as fakeThreads } from "./fake-threads"
 import { inspect } from "util"
 import { withRightAlignedText } from "./utils"
+import ErrorBoundary from "./ErrorBoundary"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
 
@@ -343,5 +344,10 @@ authorize().then((gmail: GmailAPIInstance) => {
     }
   }
 
-  const component = render(<App gmail={gmailApi} />, screen)
+  const component = render(
+    <ErrorBoundary>
+      <App gmail={gmailApi} />
+    </ErrorBoundary>,
+    screen
+  )
 })
