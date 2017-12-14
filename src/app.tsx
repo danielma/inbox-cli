@@ -226,9 +226,13 @@ class App extends React.Component<IAppProps, IAppState> {
           width="100%"
           height="20%"
           border={{ type: "line" }}
-          style={{ border: { fg: "blue" }, selected: { bg: "gray" } }}
+          style={{
+            border: { fg: "blue" },
+            selected: { bg: "gray" }
+          }}
           items={messageSubjects}
           keys
+          mouse
           onSelectItem={(_item, index) => {
             this.setState({ selectedIndex: index })
           }}
@@ -240,6 +244,7 @@ class App extends React.Component<IAppProps, IAppState> {
           }}
           onKeypress={this.handleMessageListKeypress}
           ref={ref => (this.messageList = ref)}
+          scrollbar={{ style: { bg: "blue" }, track: { bg: "white" } }}
         />
         <box
           border={{ type: "line" }}

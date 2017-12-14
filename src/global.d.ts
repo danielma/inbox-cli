@@ -17,6 +17,7 @@ declare global {
     bottom?: string
     mouse?: boolean
     scrollable?: boolean
+    scrollbar?: object
     tags?: boolean
     content?: string | null
   }
