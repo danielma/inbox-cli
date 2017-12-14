@@ -5,7 +5,7 @@ const authorize = require("./authorize")
 import { GmailMessage, GmailThread } from "./gmail-classes"
 import { threads as fakeThreads } from "./fake-threads"
 import { inspect } from "util"
-import { withRightAlignedText } from "./utils"
+import { withRightAlignedText, formatDate } from "./utils"
 import ErrorBoundary from "./ErrorBoundary"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
@@ -210,28 +210,47 @@ class App extends React.Component<IAppProps, IAppState> {
     }, messages)
   }
 
+  getArrow = (thread: GmailThread) => {
+    if (this.state.openThreads[thread.id]) {
+      return "▼"
+    } else {
+      return "▶"
+    }
+  }
+
+  getMessageSubject = (message: GmailMessage, thread: GmailThread, index: number = 0) => {
+    const isFirst = message === thread.messages[0]
+    const showArrow = thread.messages.length > 1
+
+    let subject = ""
+
+    if (isFirst) {
+      subject = showArrow ? `${this.getArrow(thread)} ${message.subject}` : `  ${message.subject}`
+    } else {
+      subject = `    ${message.subject}`
+    }
+
+    return (
+      withRightAlignedText(subject, {
+        right: formatDate(message.date),
+        list: this.messageList
+      }) + "\0".repeat(index)
+    )
+  }
+
+  getMessageSubjects = (thread: GmailThread) => {
+    if (this.state.openThreads[thread.id]) {
+      return thread.messages.map((m, index) => this.getMessageSubject(m, thread, index))
+    } else {
+      return [this.getMessageSubject(thread.messages[0], thread)]
+    }
+  }
+
   get messageSubjects() {
     let subjects: string[] = []
-    const nullChar = "\0"
 
     return this.state.threads.reduce((memo, thread) => {
-      if (this.state.openThreads[thread.id]) {
-        const marker = thread.messages.length > 1 ? "▼" : " "
-        const firstSubject = `${marker} ${thread.messages[0].subject}`
-        const restSubjects = thread.messages
-          .slice(1)
-          .map((m, index) => `    ${m.subject}${nullChar.repeat(index)}`)
-
-        return memo.concat([firstSubject, ...restSubjects])
-      } else {
-        const marker = thread.messages.length > 1 ? "▶" : " "
-        return memo.concat([
-          withRightAlignedText(`${marker} ${thread.messages[0].subject}`, {
-            right: "marxism",
-            list: this.messageList
-          })
-        ])
-      }
+      return memo.concat(this.getMessageSubjects(thread))
     }, subjects)
   }
 
@@ -248,7 +267,7 @@ class App extends React.Component<IAppProps, IAppState> {
           border={{ type: "line" }}
           style={{
             border: { fg: "blue" },
-            selected: { bg: "gray" }
+            selected: { bg: "blue" }
           }}
           items={messageSubjects}
           tags
@@ -263,7 +282,7 @@ class App extends React.Component<IAppProps, IAppState> {
           }}
           onKeypress={this.handleMessageListKeypress}
           ref={ref => (this.messageList = ref)}
-          scrollbar={{ style: { bg: "blue" }, track: { bg: "white" } }}
+          scrollbar={{ style: { bg: "gray" }, track: { bg: "white" } }}
         />
         <box
           border={{ type: "line" }}

@@ -25,6 +25,7 @@ export class GmailMessage {
   payload: object
   id: string
   threadId: string
+  date: Date
 
   constructor(message) {
     this._message = message
@@ -36,6 +37,7 @@ export class GmailMessage {
     this.payload = message.payload
     this.threadId = message.threadId
     this.id = message.id
+    this.date = new Date(this._headers["date"])
   }
 
   get subject() {
