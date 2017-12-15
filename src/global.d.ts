@@ -4,16 +4,17 @@ export {}
 
 declare global {
   interface BlessedReactNode {
-    children?: (any | null)[] | string | null
+    children?: any | null
     ref?(BlessedReactNode): void
   }
 
   interface BlessedElement extends BlessedReactNode {
-    width?: string
-    height?: string
+    width?: string | number
+    height?: string | number
     border?: object
     style?: object
     top?: string
+    left?: string | number
     bottom?: string
     mouse?: boolean
     scrollable?: boolean
@@ -21,6 +22,9 @@ declare global {
     tags?: boolean
     content?: string | null
     index?: number
+    onKeypress?(wut: any, key: object): void
+    keys?: boolean
+    onBlur?(): void
   }
 
   interface BlessedBox extends BlessedElement {}
@@ -28,12 +32,16 @@ declare global {
   interface BlessedList extends BlessedBox {
     items: string[]
     vi?: boolean
-    keys?: boolean
     search?(searcher: (value: string) => void): void
     onSelectItem(item: string, index: number): void
     onSelect(item: string, index: number): void
-    onKeypress(wut: any, key: object): void
   }
+
+  interface BlessedInputProps extends BlessedBox {
+    inputOnFocus?: boolean
+  }
+
+  interface BlessedTextBoxProps extends BlessedInputProps {}
 
   interface BlessedReactNodeInstance {}
 
@@ -45,15 +53,21 @@ declare global {
     screen: BlessedReactScreenInstance
     strWidth(string: string): number
     width: number
+    focus(): void
+    focused: boolean
   }
 
   interface BlessedListInstance extends BlessedReactElementInstance {
-    focus(): void
     selected: number
     up(): void
     down(): void
     select(index: number): void
     items: string[]
+  }
+
+  interface BlessedTextBoxInstance extends BlessedReactElementInstance {
+    value: string
+    setValue(value: string): void
   }
 
   interface GmailAPIInstance {
@@ -71,6 +85,7 @@ declare global {
       list: BlessedList
       element: BlessedElement
       box: BlessedBox
+      textbox: BlessedTextBoxProps
     }
   }
 }
