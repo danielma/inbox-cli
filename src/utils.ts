@@ -53,3 +53,18 @@ export function formatDate(
     throw `Uknown mode: ${mode}`
   }
 }
+
+export function promisify(
+  fn: (options: object, cb: (err, response) => void) => void
+): (options: object) => Promise<any> {
+  return function promisedFn(options) {
+    return new Promise((resolve, reject) => {
+      fn(options, (err, response) => {
+        if (err) {
+          reject(err)
+        }
+        resolve(response)
+      })
+    })
+  }
+}

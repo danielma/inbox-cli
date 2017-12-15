@@ -5,7 +5,7 @@ const authorize = require("./authorize")
 import { GmailMessage, GmailThread } from "./gmail-classes"
 import { threads as fakeThreads } from "./fake-threads"
 import { inspect } from "util"
-import { withRightAlignedText, formatDate } from "./utils"
+import { withRightAlignedText, formatDate, promisify } from "./utils"
 import ErrorBoundary from "./ErrorBoundary"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
@@ -27,10 +27,13 @@ interface IAppState {
   lastArchivedThreadId: number | null
   openThreads: { [threadId: string]: boolean }
   status: string | null
+  searching: boolean
+  fuzzySearch: string | null
 }
 
 class App extends React.Component<IAppProps, IAppState> {
   private messageList: BlessedListInstance
+  private searchBox: BlessedTextBoxInstance
 
   constructor(props: IAppProps) {
     super(props)
@@ -40,7 +43,9 @@ class App extends React.Component<IAppProps, IAppState> {
       selectedIndex: null,
       error: null,
       lastArchivedThreadId: null,
-      status: null
+      status: null,
+      searching: true,
+      fuzzySearch: null
     }
   }
 
@@ -124,7 +129,7 @@ class App extends React.Component<IAppProps, IAppState> {
         .open({ background: true })
         .then(() => this.logStatus(`open ${selectedMessage.externalURL}`))
         .catch(this.logError)
-    } else if (full === "C-d") {
+    } else if (full === "d") {
       this.archiveThread(selectedMessage.threadId)
     } else if (full === "C-z" && this.state.lastArchivedThreadId) {
       this.unarchiveLastArchivedThread()
@@ -151,6 +156,27 @@ class App extends React.Component<IAppProps, IAppState> {
           messageList.select(this.messages.findIndex(m => m.id == message.id))
           messageList.screen.render()
         }
+      )
+    } else if (full === "/") {
+      this.setState({ searching: true }, () => {
+        this.searchBox.focus()
+      })
+    }
+  }
+
+  handleSearchBoxKeypress = (_ch, key) => {
+    const { full } = key
+
+    if (full === "C-k") {
+      this.searchBox.setValue("")
+      this.setState({ fuzzySearch: "" })
+    } else {
+      setTimeout(
+        () =>
+          this.setState({
+            fuzzySearch: this.searchBox ? this.searchBox.value : null
+          }),
+        0
       )
     }
   }
@@ -198,10 +224,26 @@ class App extends React.Component<IAppProps, IAppState> {
     this.statusTimeout = setTimeout(() => this.setState({ status: null }), 2000)
   }
 
+  get filteredThreads(): GmailThread[] {
+    const { fuzzySearch, searching } = this.state
+
+    if (fuzzySearch && searching) {
+      const fuzzyRegex = new RegExp(fuzzySearch.replace(/\W+/g, ".*"), "gi")
+
+      return this.state.threads.filter(thread => {
+        const subject: string = thread.messages[0].subject
+
+        return subject.match(fuzzyRegex)
+      })
+    } else {
+      return this.state.threads
+    }
+  }
+
   get messages(): GmailMessage[] {
     let messages: GmailMessage[] = []
 
-    return this.state.threads.reduce((memo, thread) => {
+    return this.filteredThreads.reduce((memo, thread) => {
       if (this.state.openThreads[thread.id]) {
         return memo.concat(thread.messages)
       } else {
@@ -238,24 +280,24 @@ class App extends React.Component<IAppProps, IAppState> {
     )
   }
 
-  getMessageSubjects = (thread: GmailThread) => {
-    if (this.state.openThreads[thread.id]) {
-      return thread.messages.map((m, index) => this.getMessageSubject(m, thread, index))
-    } else {
-      return [this.getMessageSubject(thread.messages[0], thread)]
-    }
-  }
-
   get messageSubjects() {
     let subjects: string[] = []
 
-    return this.state.threads.reduce((memo, thread) => {
-      return memo.concat(this.getMessageSubjects(thread))
+    return this.filteredThreads.reduce((memo, thread) => {
+      let s: string[]
+
+      if (this.state.openThreads[thread.id]) {
+        s = thread.messages.map((m, index) => this.getMessageSubject(m, thread, index))
+      } else {
+        s = [this.getMessageSubject(thread.messages[0], thread)]
+      }
+
+      return memo.concat(s)
     }, subjects)
   }
 
   render() {
-    const { error, status } = this.state
+    const { error, status, searching } = this.state
     const { messages, messageSubjects } = this
     const selectedMessage = messages[this.state.selectedIndex || 0]
 
@@ -267,7 +309,7 @@ class App extends React.Component<IAppProps, IAppState> {
           border={{ type: "line" }}
           style={{
             border: { fg: "blue" },
-            selected: { bg: "blue" }
+            selected: { bg: "blue", fg: "black" }
           }}
           items={messageSubjects}
           tags
@@ -282,11 +324,35 @@ class App extends React.Component<IAppProps, IAppState> {
           }}
           onKeypress={this.handleMessageListKeypress}
           ref={ref => (this.messageList = ref)}
-          scrollbar={{ style: { bg: "gray" }, track: { bg: "white" } }}
+          scrollbar={{ style: { bg: "white" }, track: { bg: "gray" } }}
         />
+        {searching && (
+          <box
+            width={30}
+            height="0%+3"
+            left="100%-30"
+            top="0%"
+            index={2}
+            border={{ type: "line" }}
+            style={{ border: { fg: "yellow" } }}
+          >
+            <box width={7} height={1} content={"{bold}filter{/} "} tags />
+            <textbox
+              left={7}
+              keys
+              mouse
+              inputOnFocus
+              ref={r => (this.searchBox = r)}
+              onBlur={() => {
+                if (!this.state.fuzzySearch) this.setState({ searching: false })
+              }}
+              onKeypress={this.handleSearchBoxKeypress}
+            />
+          </box>
+        )}
         <box
           border={{ type: "line" }}
-          style={{ border: { fg: "blue" }, selected: { bg: "gray" } }}
+          style={{ border: { fg: "gray" }, selected: { bg: "gray" } }}
           top="25%"
           height="75%"
           width="100%"
@@ -312,7 +378,7 @@ class App extends React.Component<IAppProps, IAppState> {
         {status && (
           <box
             border={{ type: "line" }}
-            style={{ border: { fg: "gray" } }}
+            style={{ border: { fg: "yellow" } }}
             bottom="0"
             height="0%+3"
             width="100%"
@@ -324,21 +390,6 @@ class App extends React.Component<IAppProps, IAppState> {
         )}
       </element>
     )
-  }
-}
-
-function promisify(
-  fn: (options: object, cb: (err, response) => void) => void
-): (options: object) => Promise<any> {
-  return function promisedFn(options) {
-    return new Promise((resolve, reject) => {
-      fn(options, (err, response) => {
-        if (err) {
-          reject(err)
-        }
-        resolve(response)
-      })
-    })
   }
 }
 
