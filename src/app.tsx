@@ -5,7 +5,7 @@ const authorize = require("./authorize")
 import { GmailMessage, GmailThread } from "./gmail-classes"
 import { threads as fakeThreads } from "./fake-threads"
 import { inspect } from "util"
-import { withRightAlignedText, formatDate } from "./utils"
+import { withRightAlignedText, formatDate, promisify } from "./utils"
 import ErrorBoundary from "./ErrorBoundary"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
@@ -324,21 +324,6 @@ class App extends React.Component<IAppProps, IAppState> {
         )}
       </element>
     )
-  }
-}
-
-function promisify(
-  fn: (options: object, cb: (err, response) => void) => void
-): (options: object) => Promise<any> {
-  return function promisedFn(options) {
-    return new Promise((resolve, reject) => {
-      fn(options, (err, response) => {
-        if (err) {
-          reject(err)
-        }
-        resolve(response)
-      })
-    })
   }
 }
 
