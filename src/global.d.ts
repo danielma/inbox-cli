@@ -71,12 +71,15 @@ declare global {
 
   interface BlessedReactNodeInstance extends Element {
     focus(): void
+    onScreenEvent: (event: string, callback: (...args: any[]) => void) => void
+    removeScreenEvent: (event: string, callback: (...args: any[]) => void) => void
   }
 
   interface BlessedReactScreenInstance {
     render(): void
     key(keys: string[], callback: (ch: string, key: object) => void)
     destroy(): void
+    grabKeys: boolean
   }
 
   interface BlessedReactElementInstance extends BlessedReactNodeInstance {
@@ -105,6 +108,10 @@ declare global {
 
   interface BlessedFormInstance extends BlessedInputInstance {
     submit(): void
+  }
+
+  interface BlessedCheckboxInstance extends BlessedInputInstance {
+    checked: boolean
   }
 
   interface GmailAPIInstance {

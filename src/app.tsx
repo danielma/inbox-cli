@@ -33,7 +33,6 @@ interface IAppState {
   searching: boolean
   fuzzySearch: string | null
   showHelp: boolean
-  settings: Settings
 }
 
 export interface IAppContext {
@@ -57,8 +56,7 @@ class App extends React.Component<IAppProps, IAppState> {
       status: null,
       searching: false,
       fuzzySearch: null,
-      showHelp: false,
-      settings: settingsEmitter.load()
+      showHelp: false
     }
   }
 
@@ -68,7 +66,6 @@ class App extends React.Component<IAppProps, IAppState> {
     this.setupReloadInterval()
 
     settingsEmitter.on("update", settings => {
-      this.setState({ settings })
       this.logStatus("Settings updated")
     })
 
@@ -253,7 +250,7 @@ class App extends React.Component<IAppProps, IAppState> {
       const fuzzyRegex = new RegExp(fuzzySearch.replace(/\W+/g, ".*"), "gi")
 
       return this.state.threads.filter(thread => {
-        const subject: string = thread.messages[0].subject
+        const subject: string = thread.messages[0].plainSubject
 
         return subject.match(fuzzyRegex)
       })
@@ -286,7 +283,7 @@ class App extends React.Component<IAppProps, IAppState> {
     const isFirst = message === thread.messages[0]
     const showArrow = thread.messages.length > 1
 
-    let subject = message.getSubject({ useNerdFonts: this.state.settings.useNerdFonts })
+    let subject = message.subject
 
     if (isFirst) {
       subject = showArrow ? `${this.getArrow(thread)} ${subject}` : `  ${subject}`

@@ -38,17 +38,21 @@ export class GmailMessage {
     this.date = new Date(this._headers["date"])
   }
 
-  getSubject({ useNerdFonts }: { useNerdFonts: boolean }) {
-    let subject = this._headers["subject"].replace(/^re: /i, "")
+  get plainSubject(): string {
+    return this._headers["subject"]
+  }
+
+  get subject() {
+    let subject = this.plainSubject.replace(/^re: /i, "")
 
     if (this.isFromGithub) {
-      if (useNerdFonts) {
+      if (settingsEmitter.load().useNerdFonts) {
         subject = chalk.gray("\uf09b  ") + subject
       } else {
         subject = chalk.white.bgBlackBright("\u2689") + " " + subject
       }
     } else if (this.isFromTrello) {
-      if (useNerdFonts) {
+      if (settingsEmitter.load().useNerdFonts) {
         subject = chalk.blue("\uf181  ") + subject
       } else {
         subject = chalk.white.bgBlue("\u259c") + " " + subject

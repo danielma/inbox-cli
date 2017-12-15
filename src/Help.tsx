@@ -14,16 +14,26 @@ interface IHelpState {
 }
 
 export default class Help extends React.Component<{ onClose(): void }, IHelpState> {
+  refs: {
+    element: BlessedReactNodeInstance
+  }
+
   constructor(props) {
     super(props)
 
     this.state = { visiblePane: Panes.Preferences }
   }
 
-  handleKeypress = (_ch, key) => {
-    const { full } = key
+  componentDidMount() {
+    this.refs.element.onScreenEvent("keypress", this.handleScreenKeypress)
+  }
 
-    if (full === "q") {
+  componentWillUnmount() {
+    this.refs.element.removeScreenEvent("keypress", this.handleScreenKeypress)
+  }
+
+  handleScreenKeypress = (_ch, key) => {
+    if (key.full === "q") {
       this.props.onClose()
     }
   }
@@ -42,7 +52,6 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
         height={20}
         scrollable
         keys
-        onKeypress={this.handleKeypress}
       >
         <listbar
           keys
@@ -72,51 +81,63 @@ This is where you come for help
   }
 }
 
-class Preferences extends React.Component<{}, { settings: Settings }> {
+class Preferences extends React.Component<{}, Settings> {
   refs: {
     form: BlessedFormInstance
-    firstCheckbox: BlessedInputInstance
+    knownOnlyCheckbox: BlessedCheckboxInstance
+    useNerdFontsCheckbox: BlessedCheckboxInstance
+    useTrelloDesktopCheckbox: BlessedCheckboxInstance
   }
 
   constructor(props) {
     super(props)
 
-    this.state = { settings: settingsEmitter.load() }
+    this.state = settingsEmitter.load()
   }
 
   componentDidMount() {
-    this.refs.firstCheckbox.focus()
+    this.refs.knownOnlyCheckbox.focus()
   }
 
   handleSubmit = data => {
-    this.setState({ settings: data }, () => {
+    this.setState({ ...data }, () => {
       settingsEmitter.save(data)
     })
   }
 
+  handleKeypress = settingName => () => {
+    setTimeout(() => {
+      this.setState({ [settingName]: this.refs[settingName + "Checkbox"].checked })
+    }, 0)
+  }
+
   render() {
-    const { settings } = this.state
     return (
       <form keys vi mouse ref="form" onSubmit={this.handleSubmit}>
         <checkbox
+          ref="knownOnlyCheckbox"
           mouse
           name="knownOnly"
-          checked={settings.knownOnly}
+          checked={this.state.knownOnly}
+          onKeypress={this.handleKeypress("knownOnly")}
           text="Only fetch known emails"
-          ref="firstCheckbox"
         />
         <checkbox
+          ref="useNerdFontsCheckbox"
           mouse
           name="useNerdFonts"
-          checked={settings.useNerdFonts}
+          checked={this.state.useNerdFonts}
           text="Use nerd fonts (for icons)"
+          onKeypress={this.handleKeypress("useNerdFonts")}
           top={1}
         />
         <checkbox
+          ref="useTrelloDesktopCheckbox"
           mouse
           name="useTrelloDesktop"
-          checked={settings.useTrelloDesktop}
+          checked={this.state.useTrelloDesktop}
           text="Open trello links in trello desktop app"
+          onKeypress={this.handleKeypress("useTrelloDesktop")}
           top={2}
         />
         <button
