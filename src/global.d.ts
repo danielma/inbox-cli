@@ -1,11 +1,12 @@
 import { EventEmitter } from "events"
+import * as React from "react"
 
 export {}
 
 declare global {
   interface BlessedReactNode {
     children?: any | null
-    ref?(BlessedReactNode): void
+    ref?: ((BlessedReactNode) => void) | string
   }
 
   interface BlessedElement extends BlessedReactNode {
@@ -43,10 +44,12 @@ declare global {
 
   interface BlessedTextBoxProps extends BlessedInputProps {}
 
-  interface BlessedReactNodeInstance {}
+  interface BlessedReactNodeInstance extends React.ReactElement<any> {}
 
   interface BlessedReactScreenInstance {
     render(): void
+    key(keys: string[], callback: (ch: string, key: object) => void)
+    destroy(): void
   }
 
   interface BlessedReactElementInstance extends BlessedReactNodeInstance {
@@ -56,6 +59,8 @@ declare global {
     focus(): void
     focused: boolean
   }
+
+  interface BlessedBoxInstance extends BlessedReactElementInstance {}
 
   interface BlessedListInstance extends BlessedReactElementInstance {
     selected: number
