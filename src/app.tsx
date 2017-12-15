@@ -72,6 +72,12 @@ class App extends React.Component<IAppProps, IAppState> {
     this.props.screen.key(["?"], () => this.setState({ showHelp: true }))
   }
 
+  componentDidUpdate(_prevProps, prevState) {
+    if (prevState.showHelp && !this.state.showHelp) {
+      this.messageList.focus()
+    }
+  }
+
   setupReloadInterval = () => {
     setInterval(this.reloadInbox, 30000)
   }
