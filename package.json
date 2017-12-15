@@ -23,7 +23,7 @@
     "react-blessed": "^0.2.0"
   },
   "scripts": {
-    "start": "node -r ts-node/register src/app.tsx",
+    "start": "node -r ts-node/register src/index.js",
     "clear-dist": "rimraf dist",
     "typescript-build": "tsc",
     "build": "npm run clear-dist && npm run typescript-build",

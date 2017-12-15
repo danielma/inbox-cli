@@ -8,6 +8,7 @@ import { inspect } from "util"
 import { withRightAlignedText, formatDate, promisify } from "./utils"
 import ErrorBoundary from "./ErrorBoundary"
 import Help from "./Help"
+import settingsEmitter, { Settings } from "./settings"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
 
@@ -32,6 +33,12 @@ interface IAppState {
   searching: boolean
   fuzzySearch: string | null
   showHelp: boolean
+  settings: Settings
+}
+
+export interface IAppContext {
+  screen: BlessedReactScreenInstance
+  logStatus(status: string): void
 }
 
 class App extends React.Component<IAppProps, IAppState> {
@@ -50,7 +57,8 @@ class App extends React.Component<IAppProps, IAppState> {
       status: null,
       searching: false,
       fuzzySearch: null,
-      showHelp: false
+      showHelp: false,
+      settings: settingsEmitter.load()
     }
   }
 
@@ -58,6 +66,11 @@ class App extends React.Component<IAppProps, IAppState> {
     this.reloadInbox()
     this.messageList.focus()
     this.setupReloadInterval()
+
+    settingsEmitter.on("update", settings => {
+      this.setState({ settings })
+      this.logStatus("Settings updated")
+    })
 
     this.props.screen.key(["?"], () => this.setState({ showHelp: true }))
   }
@@ -273,12 +286,12 @@ class App extends React.Component<IAppProps, IAppState> {
     const isFirst = message === thread.messages[0]
     const showArrow = thread.messages.length > 1
 
-    let subject = ""
+    let subject = message.getSubject({ useNerdFonts: this.state.settings.useNerdFonts })
 
     if (isFirst) {
-      subject = showArrow ? `${this.getArrow(thread)} ${message.subject}` : `  ${message.subject}`
+      subject = showArrow ? `${this.getArrow(thread)} ${subject}` : `  ${subject}`
     } else {
-      subject = `    ${message.subject}`
+      subject = `    ${subject}`
     }
 
     return (
@@ -412,9 +425,7 @@ authorize().then((gmail: GmailAPIInstance) => {
     ignoreLocked: ["C-c"]
   })
 
-  screen.grabKeys = true
-
-  screen.key(["q", "C-c"], function(ch, key) {
+  screen.key(["C-c"], function(ch, key) {
     return process.exit(0)
   })
 

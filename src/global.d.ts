@@ -14,7 +14,7 @@ declare global {
     height?: string | number
     border?: object
     style?: object
-    top?: string
+    top?: string | number
     left?: string | number
     bottom?: string
     mouse?: boolean
@@ -26,6 +26,7 @@ declare global {
     onKeypress?(wut: any, key: object): void
     keys?: boolean
     onBlur?(): void
+    shrink?: boolean
   }
 
   interface BlessedBox extends BlessedElement {}
@@ -38,13 +39,39 @@ declare global {
     onSelect(item: string, index: number): void
   }
 
+  interface BlessedLineProps extends BlessedBox {
+    orientation?: "horizontal" | "vertical"
+  }
+
+  interface BlessedListBarProps extends BlessedBox {
+    commands: { [key: string]: (() => void) }
+    autoCommandKeys?: boolean
+  }
+
   interface BlessedInputProps extends BlessedBox {
     inputOnFocus?: boolean
+    name?: string
   }
 
   interface BlessedTextBoxProps extends BlessedInputProps {}
 
-  interface BlessedReactNodeInstance extends React.ReactElement<any> {}
+  interface BlessedCheckboxProps extends BlessedInputProps {
+    text: string
+    checked?: boolean
+  }
+
+  interface BlessedFormProps extends BlessedElement {
+    vi?: boolean
+    onSubmit?: (data: any) => void
+  }
+
+  interface BlessedButtonProps extends BlessedInputProps {
+    onPress?: () => void
+  }
+
+  interface BlessedReactNodeInstance extends Element {
+    focus(): void
+  }
 
   interface BlessedReactScreenInstance {
     render(): void
@@ -56,7 +83,6 @@ declare global {
     screen: BlessedReactScreenInstance
     strWidth(string: string): number
     width: number
-    focus(): void
     focused: boolean
   }
 
@@ -75,6 +101,12 @@ declare global {
     setValue(value: string): void
   }
 
+  interface BlessedInputInstance extends BlessedReactElementInstance {}
+
+  interface BlessedFormInstance extends BlessedInputInstance {
+    submit(): void
+  }
+
   interface GmailAPIInstance {
     users: {
       threads: {
@@ -91,6 +123,11 @@ declare global {
       element: BlessedElement
       box: BlessedBox
       textbox: BlessedTextBoxProps
+      listbar: BlessedListBarProps
+      line: BlessedLineProps
+      checkbox: BlessedCheckboxProps
+      form: BlessedFormProps
+      button: BlessedButtonProps
     }
   }
 }
