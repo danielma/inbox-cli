@@ -1,7 +1,7 @@
 const { openURL } = require("./utils")
 const chalk = require("chalk")
+import settingsEmitter from "./settings"
 
-const USE_TRELLO_DESKTOP = true
 export class GmailThread {
   _thread: any
   messages: [GmailMessage]
@@ -100,7 +100,7 @@ export class GmailMessage {
 
     const originalURL = match[1]
 
-    if (USE_TRELLO_DESKTOP) {
+    if (settingsEmitter.load().useTrelloDesktop) {
       return originalURL.replace("https://", "trello://")
     } else {
       return originalURL
