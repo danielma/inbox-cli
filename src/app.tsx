@@ -44,7 +44,7 @@ class App extends React.Component<IAppProps, IAppState> {
       error: null,
       lastArchivedThreadId: null,
       status: null,
-      searching: true,
+      searching: false,
       fuzzySearch: null
     }
   }
