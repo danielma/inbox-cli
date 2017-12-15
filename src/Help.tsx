@@ -107,7 +107,9 @@ class Preferences extends React.Component<{}, Settings> {
 
   handleKeypress = settingName => () => {
     setTimeout(() => {
-      this.setState({ [settingName]: this.refs[settingName + "Checkbox"].checked })
+      if (this.refs[settingName + "Checkbox"]) {
+        this.setState({ [settingName]: this.refs[settingName + "Checkbox"].checked })
+      }
     }, 0)
   }
 
