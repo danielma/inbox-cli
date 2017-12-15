@@ -63,13 +63,18 @@ export class GmailMessage {
   get plainText() {
     const { parts } = this._message.payload
 
-    if (!parts) return ""
+    let encodedBody = ""
 
-    const plainText = parts.find(p => p.mimeType === "text/plain") || parts[0]
+    if (parts) {
+      const plainText = parts.find(p => p.mimeType === "text/plain") || parts[0]
 
-    if (!plainText.body.data) return ""
+      if (!plainText.body.data) return ""
+      encodedBody = plainText.body.data
+    } else if (this._message.payload.body) {
+      encodedBody = this._message.payload.body.data
+    }
 
-    return new Buffer(plainText.body.data, "base64").toString("utf8")
+    return new Buffer(encodedBody, "base64").toString("utf8")
   }
 
   get externalURL() {
