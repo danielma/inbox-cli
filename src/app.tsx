@@ -9,6 +9,7 @@ import { withRightAlignedText, formatDate, promisify } from "./utils"
 import ErrorBoundary from "./ErrorBoundary"
 import Help from "./Help"
 import settingsEmitter, { Settings } from "./settings"
+import keybindings from "./keybindings"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
 
@@ -129,17 +130,18 @@ class App extends React.Component<IAppProps, IAppState> {
     const { messageList } = this
 
     let handled = false
+    const matchedBinding = keybindings[full]
 
-    if (full === "C-p" || full === "k") {
+    if (matchedBinding === "messageList.up") {
       messageList.up()
       handled = true
-    } else if (full === "C-n" || full === "j") {
+    } else if (matchedBinding === "messageList.down") {
       messageList.down()
       handled = true
-    } else if (full === "g") {
+    } else if (matchedBinding === "messageList.top") {
       messageList.select(0)
       handled = true
-    } else if (full === "S-g") {
+    } else if (matchedBinding === "messageList.bottom") {
       messageList.select(messageList.items.length - 1)
       handled = true
     }
@@ -159,24 +161,26 @@ class App extends React.Component<IAppProps, IAppState> {
     const { messageList } = this
     const { messages } = this
     const selectedMessage = messages[messageList.selected]
-    if (full === "C-o") {
+    const matchedBinding = keybindings[full]
+
+    if (matchedBinding === "selectedMessage.openInBackground") {
       selectedMessage
         .open({ background: true })
         .then(() => this.logStatus(`open ${selectedMessage.externalURL}`))
         .catch(this.logError)
-    } else if (full === "d") {
+    } else if (matchedBinding === "selectedMessage.archive") {
       this.archiveThread(selectedMessage.threadId)
-    } else if (full === "C-z" && this.state.lastArchivedThreadId) {
+    } else if (matchedBinding === "archive.undo" && this.state.lastArchivedThreadId) {
       this.unarchiveLastArchivedThread()
-    } else if (full === "r") {
+    } else if (matchedBinding === "inbox.reload") {
       this.reloadInbox()
-    } else if (full === "l" || full === "right") {
+    } else if (matchedBinding === "selectedThread.expand") {
       this.setState(({ openThreads }) => {
         openThreads[selectedMessage.threadId] = true
 
         return { openThreads }
       })
-    } else if (full === "h" || full === "left") {
+    } else if (matchedBinding === "selectedThread.close") {
       this.setState(
         ({ openThreads }) => {
           delete openThreads[selectedMessage.threadId]
@@ -192,11 +196,11 @@ class App extends React.Component<IAppProps, IAppState> {
           this.props.screen.render()
         }
       )
-    } else if (full === "/") {
+    } else if (matchedBinding === "search.open") {
       this.setState({ searching: true }, () => {
         this.searchBox.focus()
       })
-    } else if (full === "q") {
+    } else if (matchedBinding === "app.quit") {
       this.props.screen.destroy()
     }
   }

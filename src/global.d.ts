@@ -12,7 +12,7 @@ declare global {
   interface BlessedElement extends BlessedReactNode {
     width?: string | number
     height?: string | number
-    border?: object
+    border?: object | null
     style?: object
     top?: string | number
     left?: string | number
@@ -27,16 +27,20 @@ declare global {
     keys?: boolean
     onBlur?(): void
     shrink?: boolean
+    align?: string
   }
 
   interface BlessedBox extends BlessedElement {}
 
-  interface BlessedList extends BlessedBox {
-    items: string[]
+  interface BlessedListWithoutItems extends BlessedBox {
     vi?: boolean
     search?(searcher: (value: string) => void): void
-    onSelectItem(item: string, index: number): void
-    onSelect(item: string, index: number): void
+    onSelectItem?(item: string, index: number): void
+    onSelect?(item: string, index: number): void
+  }
+
+  interface BlessedList extends BlessedListWithoutItems {
+    items: string[]
   }
 
   interface BlessedLineProps extends BlessedBox {
@@ -67,6 +71,12 @@ declare global {
 
   interface BlessedButtonProps extends BlessedInputProps {
     onPress?: () => void
+  }
+
+  interface BlessedTableProps extends BlessedElement {
+    data: string[][]
+    noCellBorders?: boolean
+    pad?: number | null
   }
 
   interface BlessedReactNodeInstance extends Element {
@@ -135,6 +145,7 @@ declare global {
       checkbox: BlessedCheckboxProps
       form: BlessedFormProps
       button: BlessedButtonProps
+      table: BlessedTableProps
     }
   }
 }
