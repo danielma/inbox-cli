@@ -1,8 +1,6 @@
 const { openURL } = require("./utils")
 const chalk = require("chalk")
-
-const USE_TRELLO_DESKTOP = true
-const USE_NERD_FONTS = true
+import settingsEmitter from "./settings"
 
 export class GmailThread {
   _thread: any
@@ -40,17 +38,21 @@ export class GmailMessage {
     this.date = new Date(this._headers["date"])
   }
 
+  get plainSubject(): string {
+    return this._headers["subject"]
+  }
+
   get subject() {
-    let subject = this._headers["subject"].replace(/^re: /i, "")
+    let subject = this.plainSubject.replace(/^re: /i, "")
 
     if (this.isFromGithub) {
-      if (USE_NERD_FONTS) {
+      if (settingsEmitter.load().useNerdFonts) {
         subject = chalk.gray("\uf09b  ") + subject
       } else {
         subject = chalk.white.bgBlackBright("\u2689") + " " + subject
       }
     } else if (this.isFromTrello) {
-      if (USE_NERD_FONTS) {
+      if (settingsEmitter.load().useNerdFonts) {
         subject = chalk.blue("\uf181  ") + subject
       } else {
         subject = chalk.white.bgBlue("\u259c") + " " + subject
@@ -102,7 +104,7 @@ export class GmailMessage {
 
     const originalURL = match[1]
 
-    if (USE_TRELLO_DESKTOP) {
+    if (settingsEmitter.load().useTrelloDesktop) {
       return originalURL.replace("https://", "trello://")
     } else {
       return originalURL

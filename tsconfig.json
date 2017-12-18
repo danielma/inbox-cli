@@ -6,7 +6,13 @@
     "module": "commonjs",
     "target": "es6",
     "allowJs": true,
-    "typeRoots": ["./src/", "node_modules/@types"]
+    "sourceMap": true,
+    "typeRoots": [
+      "./src/",
+      "node_modules/@types"
+    ]
   },
-  "include": ["./src/"]
+  "include": [
+    "./src/"
+  ]
 }

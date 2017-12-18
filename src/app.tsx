@@ -7,6 +7,8 @@ import { threads as fakeThreads } from "./fake-threads"
 import { inspect } from "util"
 import { withRightAlignedText, formatDate, promisify } from "./utils"
 import ErrorBoundary from "./ErrorBoundary"
+import Help from "./Help"
+import settingsEmitter, { Settings } from "./settings"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
 
@@ -18,6 +20,7 @@ interface IAppProps {
       modify(options: object): Promise<any>
     }
   }
+  screen: BlessedReactScreenInstance
 }
 
 interface IAppState {
@@ -29,11 +32,18 @@ interface IAppState {
   status: string | null
   searching: boolean
   fuzzySearch: string | null
+  showHelp: boolean
+}
+
+export interface IAppContext {
+  screen: BlessedReactScreenInstance
+  logStatus(status: string): void
 }
 
 class App extends React.Component<IAppProps, IAppState> {
   private messageList: BlessedListInstance
   private searchBox: BlessedTextBoxInstance
+  private element: BlessedReactElementInstance
 
   constructor(props: IAppProps) {
     super(props)
@@ -45,7 +55,8 @@ class App extends React.Component<IAppProps, IAppState> {
       lastArchivedThreadId: null,
       status: null,
       searching: false,
-      fuzzySearch: null
+      fuzzySearch: null,
+      showHelp: false
     }
   }
 
@@ -53,6 +64,21 @@ class App extends React.Component<IAppProps, IAppState> {
     this.reloadInbox()
     this.messageList.focus()
     this.setupReloadInterval()
+
+    settingsEmitter.on("update", settings => {
+      this.logStatus("Settings updated")
+      if (this.getThreadQuery(settings) !== this.getThreadQuery()) {
+        this.reloadInbox()
+      }
+    })
+
+    this.props.screen.key(["?"], () => this.setState({ showHelp: true }))
+  }
+
+  componentDidUpdate(_prevProps, prevState) {
+    if (prevState.showHelp && !this.state.showHelp) {
+      this.messageList.focus()
+    }
   }
 
   setupReloadInterval = () => {
@@ -73,7 +99,8 @@ class App extends React.Component<IAppProps, IAppState> {
     return gmail.threads
       .list({
         userId,
-        labelIds: ["INBOX"]
+        labelIds: ["INBOX"],
+        q: this.getThreadQuery()
       })
       .then(({ threads }) => {
         return Promise.all(
@@ -87,6 +114,14 @@ class App extends React.Component<IAppProps, IAppState> {
       })
       .then(threads => threads.map(t => new GmailThread(t)))
       .then(threads => this.setState({ threads }))
+  }
+
+  getThreadQuery = (settings = settingsEmitter.load()) => {
+    if (settings.knownOnly) {
+      return "from:trello.com OR from:github.com"
+    } else {
+      return ""
+    }
   }
 
   handleMessageListMovement = key => {
@@ -110,7 +145,7 @@ class App extends React.Component<IAppProps, IAppState> {
     }
 
     if (handled) {
-      messageList.screen.render()
+      this.props.screen.render()
     }
 
     return handled
@@ -154,13 +189,15 @@ class App extends React.Component<IAppProps, IAppState> {
 
           const message = thread.messages[0]
           messageList.select(this.messages.findIndex(m => m.id == message.id))
-          messageList.screen.render()
+          this.props.screen.render()
         }
       )
     } else if (full === "/") {
       this.setState({ searching: true }, () => {
         this.searchBox.focus()
       })
+    } else if (full === "q") {
+      this.props.screen.destroy()
     }
   }
 
@@ -231,7 +268,7 @@ class App extends React.Component<IAppProps, IAppState> {
       const fuzzyRegex = new RegExp(fuzzySearch.replace(/\W+/g, ".*"), "gi")
 
       return this.state.threads.filter(thread => {
-        const subject: string = thread.messages[0].subject
+        const subject: string = thread.messages[0].plainSubject
 
         return subject.match(fuzzyRegex)
       })
@@ -264,12 +301,12 @@ class App extends React.Component<IAppProps, IAppState> {
     const isFirst = message === thread.messages[0]
     const showArrow = thread.messages.length > 1
 
-    let subject = ""
+    let subject = message.subject
 
     if (isFirst) {
-      subject = showArrow ? `${this.getArrow(thread)} ${message.subject}` : `  ${message.subject}`
+      subject = showArrow ? `${this.getArrow(thread)} ${subject}` : `  ${subject}`
     } else {
-      subject = `    ${message.subject}`
+      subject = `    ${subject}`
     }
 
     return (
@@ -297,12 +334,12 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   render() {
-    const { error, status, searching } = this.state
+    const { error, status, searching, showHelp } = this.state
     const { messages, messageSubjects } = this
     const selectedMessage = messages[this.state.selectedIndex || 0]
 
     return (
-      <element>
+      <element ref={r => (this.element = r)}>
         <list
           width="100%"
           height="25%"
@@ -388,6 +425,7 @@ class App extends React.Component<IAppProps, IAppState> {
             index={1}
           />
         )}
+        {showHelp && <Help onClose={() => this.setState({ showHelp: false })} />}
       </element>
     )
   }
@@ -398,11 +436,15 @@ authorize().then((gmail: GmailAPIInstance) => {
   const screen = blessed.screen({
     autoPadding: true,
     smartCSR: true,
-    title: "inbox"
+    title: "inbox",
+    ignoreLocked: ["C-c"]
   })
 
-  // Adding a way to quit the program
-  screen.key(["q", "C-c"], function(ch, key) {
+  screen.key(["C-c"], function(ch, key) {
+    return process.exit(0)
+  })
+
+  screen.on("destroy", function() {
     return process.exit(0)
   })
 
@@ -416,7 +458,7 @@ authorize().then((gmail: GmailAPIInstance) => {
 
   const component = render(
     <ErrorBoundary>
-      <App gmail={gmailApi} />
+      <App gmail={gmailApi} screen={screen} />
     </ErrorBoundary>,
     screen
   )
