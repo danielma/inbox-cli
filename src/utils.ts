@@ -68,3 +68,66 @@ export function promisify(
     })
   }
 }
+
+export function flipArray<T>(array: T[][]): T[][] {
+  if (array.length === 0) return []
+
+  let output: T[][] = []
+
+  const columnCount = array[0].length
+  let index = 0
+
+  while (index < columnCount) {
+    output.push([])
+    index += 1
+  }
+
+  array.forEach(row => {
+    row.forEach((column, index) => {
+      output[index].push(column)
+    })
+  })
+
+  return output
+}
+
+export function padRight(string: string, length: number, spacer?: string): string {
+  if (spacer) {
+    return pad(string, length, PadDirection.right, spacer)
+  } else {
+    return pad(string, length, PadDirection.right)
+  }
+}
+
+export function padLeft(string: string, length: number, spacer?: string): string {
+  if (spacer) {
+    return pad(string, length, PadDirection.left, spacer)
+  } else {
+    return pad(string, length, PadDirection.left)
+  }
+}
+
+enum PadDirection {
+  left,
+  right
+}
+
+function pad(
+  string: string,
+  length: number,
+  direction: PadDirection,
+  spacer: string = " "
+): string {
+  const stringLength = string.length
+  const spaceNeeded = length - stringLength
+
+  if (spaceNeeded < 1) return string
+
+  if (direction === PadDirection.left) {
+    return `${spacer.repeat(spaceNeeded)}${string}`
+  } else if (direction === PadDirection.right) {
+    return `${string}${spacer.repeat(spaceNeeded)}`
+  } else {
+    throw "wat"
+  }
+}

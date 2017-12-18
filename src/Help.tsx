@@ -2,6 +2,8 @@ import * as React from "react"
 import { inspect } from "util"
 import settingsEmitter, { Settings } from "./settings"
 import * as PropTypes from "prop-types"
+import keybindings from "./keybindings"
+import { flipArray, padRight } from "./utils"
 const npmInfo: { version: string } = require("../package.json")
 
 enum Panes {
@@ -18,6 +20,8 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
     element: BlessedReactNodeInstance
   }
 
+  keybindingsTable: BlessedListInstance
+
   constructor(props) {
     super(props)
 
@@ -32,6 +36,12 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
     this.refs.element.removeScreenEvent("keypress", this.handleScreenKeypress)
   }
 
+  componentDidUpdate(_prevProps, prevState) {
+    if (prevState.visiblePane !== Panes.Help && this.state.visiblePane === Panes.Help) {
+      this.keybindingsTable.focus()
+    }
+  }
+
   handleScreenKeypress = (_ch, key) => {
     if (key.full === "q") {
       this.props.onClose()
@@ -40,6 +50,7 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
 
   render() {
     const { visiblePane } = this.state
+    const height = 20
 
     return (
       <element
@@ -49,7 +60,7 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
         top="center"
         left="center"
         width={50}
-        height={20}
+        height={height}
         scrollable
         keys
       >
@@ -68,8 +79,24 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
           {visiblePane === Panes.Help &&
             `Inbox CLI v${npmInfo.version}
 
-This is where you come for help
+Keybindings
 `}
+          {visiblePane === Panes.Help && (
+            <Table
+              keys
+              vi
+              mouse
+              scrollable
+              top={4}
+              height={height - 10}
+              scrollbar={{ style: { bg: "white" }, track: { bg: "gray" } }}
+              data={Object.keys(keybindings).map(k => [k, keybindings[k]])}
+              passthroughRef={list => (this.keybindingsTable = list)}
+              style={{
+                selected: { bg: "gray" }
+              }}
+            />
+          )}
         </box>
         <line top="100%-4" orientation="horizontal" style={{ type: "line", fg: "green" }} />
         <box top="100%-3" width="100%" height={1}>
@@ -154,4 +181,24 @@ class Preferences extends React.Component<{}, Settings> {
       </form>
     )
   }
+}
+
+interface TableProps {
+  data: string[][]
+  passthroughRef?(BlessedListInstance): void
+}
+
+function Table(props: TableProps & BlessedListWithoutItems) {
+  const { data, passthroughRef, ...rest } = props
+  const flipped = flipArray(data)
+
+  const maxes = flipped.map(c => Math.max(...c.map(x => x.length)))
+
+  return (
+    <list
+      {...rest}
+      ref={passthroughRef}
+      items={data.map(row => row.map((column, index) => padRight(column, maxes[index])).join(" "))}
+    />
+  )
 }
