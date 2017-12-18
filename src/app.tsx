@@ -42,9 +42,10 @@ export interface IAppContext {
 }
 
 class App extends React.Component<IAppProps, IAppState> {
-  private messageList: BlessedListInstance
-  private searchBox: BlessedTextBoxInstance
-  private element: BlessedReactElementInstance
+  refs: {
+    messageList: BlessedListInstance
+    searchBox: BlessedTextBoxInstance
+  }
 
   constructor(props: IAppProps) {
     super(props)
@@ -63,7 +64,7 @@ class App extends React.Component<IAppProps, IAppState> {
 
   componentDidMount() {
     this.reloadInbox()
-    this.messageList.focus()
+    this.refs.messageList.focus()
     this.setupReloadInterval()
 
     settingsEmitter.on("update", settings => {
@@ -74,11 +75,13 @@ class App extends React.Component<IAppProps, IAppState> {
     })
 
     this.props.screen.key(["?"], () => this.setState({ showHelp: true }))
+
+    this.setState({ showHelp: true })
   }
 
   componentDidUpdate(_prevProps, prevState) {
     if (prevState.showHelp && !this.state.showHelp) {
-      this.messageList.focus()
+      this.refs.messageList.focus()
     }
   }
 
@@ -127,7 +130,7 @@ class App extends React.Component<IAppProps, IAppState> {
 
   handleMessageListMovement = key => {
     const { full } = key
-    const { messageList } = this
+    const { messageList } = this.refs
 
     let handled = false
     const matchedBinding = keybindings[full]
@@ -158,7 +161,7 @@ class App extends React.Component<IAppProps, IAppState> {
 
     if (this.handleMessageListMovement(key)) return
 
-    const { messageList } = this
+    const { messageList } = this.refs
     const { messages } = this
     const selectedMessage = messages[messageList.selected]
     const matchedBinding = keybindings[full]
@@ -198,7 +201,7 @@ class App extends React.Component<IAppProps, IAppState> {
       )
     } else if (matchedBinding === "search.open") {
       this.setState({ searching: true }, () => {
-        this.searchBox.focus()
+        this.refs.searchBox.focus()
       })
     } else if (matchedBinding === "app.quit") {
       this.props.screen.destroy()
@@ -209,13 +212,13 @@ class App extends React.Component<IAppProps, IAppState> {
     const { full } = key
 
     if (full === "C-k") {
-      this.searchBox.setValue("")
+      this.refs.searchBox.setValue("")
       this.setState({ fuzzySearch: "" })
     } else {
       setTimeout(
         () =>
           this.setState({
-            fuzzySearch: this.searchBox ? this.searchBox.value : null
+            fuzzySearch: this.refs.searchBox ? this.refs.searchBox.value : null
           }),
         0
       )
@@ -316,7 +319,7 @@ class App extends React.Component<IAppProps, IAppState> {
     return (
       withRightAlignedText(subject, {
         right: `{gray-fg}${formatDate(message.date)}{/}`,
-        list: this.messageList
+        list: this.refs.messageList
       }) + "\0".repeat(index)
     )
   }
@@ -343,7 +346,7 @@ class App extends React.Component<IAppProps, IAppState> {
     const selectedMessage = messages[this.state.selectedIndex || 0]
 
     return (
-      <element ref={r => (this.element = r)}>
+      <element>
         <list
           width="100%"
           height="25%"
@@ -364,7 +367,7 @@ class App extends React.Component<IAppProps, IAppState> {
               .catch(this.logError)
           }}
           onKeypress={this.handleMessageListKeypress}
-          ref={ref => (this.messageList = ref)}
+          ref="messageList"
           scrollbar={{ style: { bg: "white" }, track: { bg: "gray" } }}
         />
         {searching && (
@@ -383,7 +386,7 @@ class App extends React.Component<IAppProps, IAppState> {
               keys
               mouse
               inputOnFocus
-              ref={r => (this.searchBox = r)}
+              ref="searchBox"
               onBlur={() => {
                 if (!this.state.fuzzySearch) this.setState({ searching: false })
               }}

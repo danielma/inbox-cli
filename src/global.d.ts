@@ -6,7 +6,7 @@ export {}
 declare global {
   interface BlessedReactNode {
     children?: any | null
-    ref?: ((BlessedReactNode) => void) | string
+    ref?: React.Ref<BlessedReactNodeInstance>
   }
 
   interface BlessedElement extends BlessedReactNode {
