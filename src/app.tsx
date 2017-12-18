@@ -67,6 +67,9 @@ class App extends React.Component<IAppProps, IAppState> {
 
     settingsEmitter.on("update", settings => {
       this.logStatus("Settings updated")
+      if (this.getThreadQuery(settings) !== this.getThreadQuery()) {
+        this.reloadInbox()
+      }
     })
 
     this.props.screen.key(["?"], () => this.setState({ showHelp: true }))
@@ -96,7 +99,8 @@ class App extends React.Component<IAppProps, IAppState> {
     return gmail.threads
       .list({
         userId,
-        labelIds: ["INBOX"]
+        labelIds: ["INBOX"],
+        q: this.getThreadQuery()
       })
       .then(({ threads }) => {
         return Promise.all(
@@ -110,6 +114,14 @@ class App extends React.Component<IAppProps, IAppState> {
       })
       .then(threads => threads.map(t => new GmailThread(t)))
       .then(threads => this.setState({ threads }))
+  }
+
+  getThreadQuery = (settings = settingsEmitter.load()) => {
+    if (settings.knownOnly) {
+      return "from:trello.com OR from:github.com"
+    } else {
+      return ""
+    }
   }
 
   handleMessageListMovement = key => {
