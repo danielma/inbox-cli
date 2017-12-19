@@ -1,6 +1,8 @@
 const { openURL } = require("./utils")
 const chalk = require("chalk")
+const htmlToText = require("html-to-text")
 import settingsEmitter from "./settings"
+import { inspect } from "util"
 
 export class GmailThread {
   _thread: any
@@ -17,8 +19,54 @@ export class GmailThread {
   }
 }
 
+interface IGmailMessageHeader {
+  name: string
+  value: string
+}
+
+interface IGmailMessagePart {
+  mimeType: string
+  body: {
+    data?: string
+    size: number
+  }
+  parts?: IGmailMessagePart[]
+}
+
+const GmailMessagePart = {
+  getPlainText(part: IGmailMessagePart): string {
+    if (part.parts) {
+      const plainTextPart = part.parts.find(p => p.mimeType === "text/plain")
+
+      if (plainTextPart) {
+        return GmailMessagePart.getPlainText(plainTextPart)
+      } else {
+        return GmailMessagePart.getPlainText(part.parts[0])
+      }
+    }
+
+    if (!part.body.data) return ""
+
+    const decoded = new Buffer(part.body.data, "base64").toString("utf8")
+
+    if (part.mimeType === "text/plain") {
+      return decoded
+    } else if (part.mimeType === "text/html") {
+      return htmlToText.fromString(decoded)
+    }
+
+    return ""
+  }
+}
+
+interface IGmailMessage {
+  payload: {
+    headers: IGmailMessageHeader[]
+  } & IGmailMessagePart
+}
+
 export class GmailMessage {
-  _message: any
+  _message: IGmailMessage
   _headers: object
   payload: object
   id: string
@@ -63,20 +111,7 @@ export class GmailMessage {
   }
 
   get plainText() {
-    const { parts } = this._message.payload
-
-    let encodedBody = ""
-
-    if (parts) {
-      const plainText = parts.find(p => p.mimeType === "text/plain") || parts[0]
-
-      if (!plainText.body.data) return ""
-      encodedBody = plainText.body.data
-    } else if (this._message.payload.body) {
-      encodedBody = this._message.payload.body.data
-    }
-
-    return new Buffer(encodedBody, "base64").toString("utf8")
+    return GmailMessagePart.getPlainText(this._message.payload)
   }
 
   get externalURL() {
