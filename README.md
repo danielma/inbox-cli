@@ -17,12 +17,7 @@ Now you're ready to go!
 
 ## Usage
 
-|Keys|Function|
-|-|-|
-|`C-o`|Open the current item in the background|
-|`Enter`, `l`|Open the current item in the foreground|
-|`C-p`, `k`, `up`|Up|
-|`C-n`, `j`, `down`|Down|
+Hit `?` in the main view and open help to see the list of keyboard shortcuts!
 
 ## Supported platforms
 
