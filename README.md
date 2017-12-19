@@ -1,4 +1,4 @@
-# Inbox CLI
+# Inbox CLI [![Build Status](https://travis-ci.org/danielma/inbox-cli.svg?branch=master)](https://travis-ci.org/danielma/inbox-cli)
 
 A friendly command line interface to gmail.
 

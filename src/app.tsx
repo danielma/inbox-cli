@@ -75,8 +75,6 @@ class App extends React.Component<IAppProps, IAppState> {
     })
 
     this.props.screen.key(["?"], () => this.setState({ showHelp: true }))
-
-    this.setState({ showHelp: true })
   }
 
   componentDidUpdate(_prevProps, prevState) {

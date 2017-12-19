@@ -8,10 +8,7 @@
     "url": "https://github.com/danielma/inbox-cli/issues"
   },
   "main": "./dist/index.js",
-  "files": [
-    "dist/",
-    "src/*"
-  ],
+  "files": ["dist/", "src/*"],
   "bin": {
     "inbox-cli": "./dist/index.js"
   },
@@ -27,11 +24,16 @@
     "clear-dist": "rimraf dist",
     "typescript-build": "tsc",
     "build": "npm run clear-dist && npm run typescript-build",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "test": "npm run typescript-build",
+    "_i_know_": "that is not a real test",
+    "prepare": "patch-package"
   },
   "devDependencies": {
     "@types/react": "^16.0.29",
     "@types/request": "^2.0.9",
+    "patch-package": "^5.0.0",
+    "postinstall-prepare": "^1.0.1",
     "prettier": "^1.8.2",
     "rimraf": "^2.6.2",
     "ts-node": "^4.0.1",
