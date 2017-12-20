@@ -131,3 +131,9 @@ function pad(
     throw "wat"
   }
 }
+
+// https://gist.github.com/samgiles/762ee337dff48623e729
+
+export function flatMap<T, U>(array: T[], mapFunc: (x: T) => U[]): U[] {
+  return array.reduce((cumulus: U[], next: T) => [...mapFunc(next), ...cumulus], <U[]>[])
+}

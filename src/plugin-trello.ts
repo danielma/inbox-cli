@@ -4,7 +4,12 @@ const chalk = require("chalk")
 
 export function getSettings(): ISetting[] {
   return [
-    { type: "boolean", name: "trello.useDesktop", label: "Open trello links in trello desktop app" }
+    {
+      type: "boolean",
+      name: "trello.useDesktop",
+      label: "Open trello links in trello desktop app",
+      default: false
+    }
   ]
 }
 
