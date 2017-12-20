@@ -24,9 +24,9 @@ declare global {
     tags?: boolean
     content?: string | null
     index?: number
-    onKeypress?(wut: any, key: object): void
+    onKeypress?(node: BlessedReactElementInstance, wut: any, key: object): void
     keys?: boolean
-    onBlur?(): void
+    onBlur?(node: BlessedReactElementInstance): void
     shrink?: boolean
     align?: string
   }
@@ -36,8 +36,8 @@ declare global {
   interface BlessedListWithoutItems extends BlessedBox {
     vi?: boolean
     search?(searcher: (value: string) => void): void
-    onSelectItem?(item: string, index: number): void
-    onSelect?(item: string, index: number): void
+    onSelectItem?(node: BlessedListInstance, item: string, index: number): void
+    onSelect?(node: BlessedListInstance, item: string, index: number): void
   }
 
   interface BlessedList extends BlessedListWithoutItems {
@@ -67,7 +67,7 @@ declare global {
 
   interface BlessedFormProps extends BlessedElement {
     vi?: boolean
-    onSubmit?: (data: any) => void
+    onSubmit?: (form: BlessedFormInstance, data: any) => void
   }
 
   interface BlessedButtonProps extends BlessedInputProps {

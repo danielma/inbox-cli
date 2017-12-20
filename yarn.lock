@@ -1291,9 +1291,9 @@ rc@^1.0.1, rc@^1.1.2, rc@^1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-blessed@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/react-blessed/-/react-blessed-0.2.0.tgz#75f53603eae132790304bd434843578fe7db266d"
+react-blessed@danielma/react-blessed#92051986023d753b6b6ba098cde23cad3af6b729:
+  version "0.2.1"
+  resolved "https://codeload.github.com/danielma/react-blessed/tar.gz/92051986023d753b6b6ba098cde23cad3af6b729"
   dependencies:
     invariant "^2.2.0"
     lodash "^4.x.x"

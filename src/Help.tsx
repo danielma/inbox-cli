@@ -110,10 +110,8 @@ Keybindings
 
 class Preferences extends React.Component<{}, Settings> {
   refs: {
+    [key: string]: BlessedReactElementInstance
     form: BlessedFormInstance
-    knownOnlyCheckbox: BlessedCheckboxInstance
-    useNerdFontsCheckbox: BlessedCheckboxInstance
-    useTrelloDesktopCheckbox: BlessedCheckboxInstance
   }
 
   constructor(props) {
@@ -123,20 +121,16 @@ class Preferences extends React.Component<{}, Settings> {
   }
 
   componentDidMount() {
-    this.refs.knownOnlyCheckbox.focus()
+    this.refs.firstCheckbox.focus()
   }
 
-  handleSubmit = data => {
-    this.setState({ ...data }, () => {
-      settingsEmitter.save(data)
-    })
+  handleSubmit = (form, data) => {
+    settingsEmitter.save(data)
   }
 
-  handleKeypress = settingName => () => {
+  handleKeypress = settingName => checkbox => {
     setTimeout(() => {
-      if (this.refs[settingName + "Checkbox"]) {
-        this.setState({ [settingName]: this.refs[settingName + "Checkbox"].checked })
-      }
+      this.setState({ [settingName]: checkbox.checked })
     }, 0)
   }
 
@@ -144,7 +138,7 @@ class Preferences extends React.Component<{}, Settings> {
     return (
       <form keys vi mouse ref="form" onSubmit={this.handleSubmit}>
         <checkbox
-          ref="knownOnlyCheckbox"
+          ref="firstCheckbox"
           mouse
           name="knownOnly"
           checked={this.state.knownOnly}
@@ -152,7 +146,6 @@ class Preferences extends React.Component<{}, Settings> {
           text="Only fetch known emails"
         />
         <checkbox
-          ref="useNerdFontsCheckbox"
           mouse
           name="useNerdFonts"
           checked={this.state.useNerdFonts}
@@ -161,10 +154,9 @@ class Preferences extends React.Component<{}, Settings> {
           top={1}
         />
         <checkbox
-          ref="useTrelloDesktopCheckbox"
           mouse
           name="useTrelloDesktop"
-          checked={this.state.useTrelloDesktop}
+          checked={!!this.state.useTrelloDesktop}
           text="Open trello links in trello desktop app"
           onKeypress={this.handleKeypress("useTrelloDesktop")}
           top={2}
