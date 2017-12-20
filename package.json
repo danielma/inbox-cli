@@ -1,6 +1,6 @@
 {
   "name": "inbox-cli",
-  "version": "1.0.0-alpha3",
+  "version": "1.0.0-alpha4",
   "author": "Daniel Ma <drailskid@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/danielma/inbox-cli",
@@ -8,10 +8,7 @@
     "url": "https://github.com/danielma/inbox-cli/issues"
   },
   "main": "./dist/index.js",
-  "files": [
-    "dist/",
-    "src/*"
-  ],
+  "files": ["dist/", "src/*"],
   "bin": {
     "inbox-cli": "./dist/index.js"
   },
