@@ -164,8 +164,9 @@ declare global {
   type MessageRecognition = IMessageRecognition | void
 
   interface ISetting {
-    type: "boolean" | "string"
+    type: "boolean"
     name: string
     label: string
+    default: boolean
   }
 }

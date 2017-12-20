@@ -108,6 +108,10 @@ Keybindings
   }
 }
 
+import { flatMap } from "./utils"
+const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
+const pluginSettings = flatMap(plugins, p => p.getSettings())
+
 class Preferences extends React.Component<{}, Settings> {
   refs: {
     [key: string]: BlessedReactElementInstance
@@ -117,7 +121,9 @@ class Preferences extends React.Component<{}, Settings> {
   constructor(props) {
     super(props)
 
-    this.state = settingsEmitter.load()
+    const initialState = {}
+    pluginSettings.forEach(s => (initialState[s.name] = s.default))
+    this.state = { ...initialState, ...settingsEmitter.load() }
   }
 
   componentDidMount() {
@@ -153,17 +159,19 @@ class Preferences extends React.Component<{}, Settings> {
           onKeypress={this.handleKeypress("useNerdFonts")}
           top={1}
         />
-        <checkbox
-          mouse
-          name="useTrelloDesktop"
-          checked={!!this.state.useTrelloDesktop}
-          text="Open trello links in trello desktop app"
-          onKeypress={this.handleKeypress("useTrelloDesktop")}
-          top={2}
-        />
+        {pluginSettings.map((setting, index) => (
+          <checkbox
+            mouse
+            name={setting.name}
+            checked={!!this.state[setting.name]}
+            text={setting.label}
+            onKeypress={this.handleKeypress(setting.name)}
+            top={index + 2}
+          />
+        ))}
         <button
           mouse
-          top={4}
+          top={pluginSettings.length + 4}
           onPress={() => this.refs.form.submit()}
           border={{ type: "line" }}
           style={{ focus: { bg: "blue", fg: "black", border: { fg: "blue" } } }}
