@@ -12,9 +12,9 @@ const SETTINGS_PATH = path.join(CONFIG_DIR, npmInfo.name, "settings.json")
 const SETTINGS_DIR = path.dirname(SETTINGS_PATH)
 
 export interface Settings {
+  [key: string]: boolean | string
   knownOnly: boolean
   useNerdFonts: boolean
-  useTrelloDesktop: boolean
 }
 
 function createSettings() {
@@ -32,8 +32,7 @@ function createSettings() {
 
   let defaultSettings: Settings = {
     knownOnly: false,
-    useNerdFonts: false,
-    useTrelloDesktop: false
+    useNerdFonts: false
   }
 
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaultSettings), { encoding: "utf8" })

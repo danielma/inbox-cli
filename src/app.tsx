@@ -126,9 +126,8 @@ class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
-  handleMessageListMovement = key => {
+  handleMessageListMovement = (messageList, key) => {
     const { full } = key
-    const { messageList } = this.refs
 
     let handled = false
     const matchedBinding = keybindings[full]
@@ -154,12 +153,11 @@ class App extends React.Component<IAppProps, IAppState> {
     return handled
   }
 
-  handleMessageListKeypress = (_ch, key) => {
+  handleMessageListKeypress = (messageList: BlessedListInstance, _ch, key) => {
     const { full } = key
 
-    if (this.handleMessageListMovement(key)) return
+    if (this.handleMessageListMovement(messageList, key)) return
 
-    const { messageList } = this.refs
     const { messages } = this
     const selectedMessage = messages[messageList.selected]
     const matchedBinding = keybindings[full]
@@ -206,11 +204,11 @@ class App extends React.Component<IAppProps, IAppState> {
     }
   }
 
-  handleSearchBoxKeypress = (_ch, key) => {
+  handleSearchBoxKeypress = (searchBox, _ch, key) => {
     const { full } = key
 
     if (full === "C-k") {
-      this.refs.searchBox.setValue("")
+      searchBox.setValue("")
       this.setState({ fuzzySearch: "" })
     } else {
       setTimeout(
@@ -357,8 +355,8 @@ class App extends React.Component<IAppProps, IAppState> {
           tags
           keys
           mouse
-          onSelectItem={(_i, selectedIndex) => this.setState({ selectedIndex })}
-          onSelect={(_item, index) => {
+          onSelectItem={(_node, _i, selectedIndex) => this.setState({ selectedIndex })}
+          onSelect={(_node, _item, index) => {
             messages[index]
               .open()
               .then(() => this.logStatus(`open ${selectedMessage.externalURL}`))
