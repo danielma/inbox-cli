@@ -4,6 +4,8 @@ const htmlToText = require("html-to-text")
 import settingsEmitter from "./settings"
 import { inspect } from "util"
 
+const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
+
 export class GmailThread {
   _thread: any
   messages: [GmailMessage]
@@ -66,9 +68,11 @@ interface IGmailMessage {
 }
 
 export class GmailMessage {
-  _message: IGmailMessage
-  _headers: object
-  payload: object
+  private _message: IGmailMessage
+  private _headers: object
+  private payload: object
+  private pluginRecognition: MessageRecognition
+
   id: string
   threadId: string
   date: Date
@@ -84,6 +88,9 @@ export class GmailMessage {
     this.threadId = message.threadId
     this.id = message.id
     this.date = new Date(this._headers["date"])
+
+    const plugin = plugins.find(p => !!p.recognize(this))
+    this.pluginRecognition = plugin && plugin.recognize(this)
   }
 
   get plainSubject(): string {
@@ -93,17 +100,11 @@ export class GmailMessage {
   get subject() {
     let subject = this.plainSubject.replace(/^re: /i, "")
 
-    if (this.isFromGithub) {
+    if (this.pluginRecognition) {
       if (settingsEmitter.load().useNerdFonts) {
-        subject = chalk.gray("\uf09b  ") + subject
+        subject = this.pluginRecognition.nerdFontIcon + "  " + subject
       } else {
-        subject = chalk.white.bgBlackBright("\u2689") + " " + subject
-      }
-    } else if (this.isFromTrello) {
-      if (settingsEmitter.load().useNerdFonts) {
-        subject = chalk.blue("\uf181  ") + subject
-      } else {
-        subject = chalk.white.bgBlue("\u259c") + " " + subject
+        subject = this.pluginRecognition.asciiIcon + " " + subject
       }
     }
 
@@ -115,35 +116,7 @@ export class GmailMessage {
   }
 
   get externalURL() {
-    return this.githubURL || this.trelloURL
-  }
-
-  private get isFromTrello() {
-    return !!this.trelloURL
-  }
-
-  private get isFromGithub() {
-    return !!this.githubURL
-  }
-
-  private get githubURL() {
-    const match = this.plainText.match(/github:\s+(http.+)/im)
-
-    return match && match[1]
-  }
-
-  private get trelloURL() {
-    const match = this.plainText.match(/\((https:\/\/trello.com.+?)\)/)
-
-    if (!match) return null
-
-    const originalURL = match[1]
-
-    if (settingsEmitter.load().useTrelloDesktop) {
-      return originalURL.replace("https://", "trello://")
-    } else {
-      return originalURL
-    }
+    return this.pluginRecognition && this.pluginRecognition.externalURL
   }
 
   open({ background = false } = {}) {

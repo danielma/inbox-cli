@@ -3,6 +3,8 @@ import * as path from "path"
 import { EventEmitter } from "events"
 const npmInfo: { name: string } = require("../package.json")
 
+const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
+
 const HOME = require("os").homedir()
 
 const CONFIG_DIR = path.join(HOME, ".config")
@@ -50,8 +52,8 @@ class SettingsEmitter extends EventEmitter {
   }
 
   save(settings: Settings) {
-    this.inMemorySettings = settings
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(this.inMemorySettings), { encoding: "utf8" })
+    this.inMemorySettings = settings
     this.emit("update", this.inMemorySettings)
   }
 }

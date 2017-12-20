@@ -1,4 +1,5 @@
 import { EventEmitter } from "events"
+import { GmailMessage } from "./gmail-classes"
 import * as React from "react"
 
 export {}
@@ -147,5 +148,24 @@ declare global {
       button: BlessedButtonProps
       table: BlessedTableProps
     }
+  }
+
+  interface IMessageRecognition {
+    nerdFontIcon: string
+    asciiIcon: string
+    externalURL: string
+  }
+
+  interface IPlugin {
+    recognize(message: GmailMessage): MessageRecognition
+    getSettings(): ISetting[]
+  }
+
+  type MessageRecognition = IMessageRecognition | void
+
+  interface ISetting {
+    type: "boolean" | "string"
+    name: string
+    label: string
   }
 }
