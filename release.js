@@ -4,7 +4,7 @@ var npmInfo = require("./package")
 
 // main
 
-const version = npmInfo.version
+const version = `v${npmInfo.version}`
 
 execute("npm publish")
   .then(() => execute(`git tag -a ${version} -m "release ${version}"`))
