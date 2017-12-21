@@ -31,8 +31,10 @@ ask("New version: ")
   .then(assertGitClean)
   .then(() => execute(`git commit -m v${version}`))
   .then(() => execute(`git push origin master`))
+  .then(() => execute(`npm publish`))
   .then(() => execute(`git tag -a v${version} -m "release v${version}"`))
   .then(() => execute(`git push origin v${version}`))
+  .then(() => process.exit(0))
   .catch(err => {
     console.log(err)
 
