@@ -9,12 +9,36 @@ const CONFIG_DIR = path.join(HOME, ".config")
 const SETTINGS_PATH = path.join(CONFIG_DIR, npmInfo.name, "settings.json")
 const SETTINGS_DIR = path.dirname(SETTINGS_PATH)
 
-export interface Settings {
-  [key: string]: boolean | string
-  knownOnly: boolean
-  useNerdFonts: boolean
-  threadSortOldestFirst: boolean
+type BuiltInSettingName =
+  | "knownOnly"
+  | "useNerdFonts"
+  | "threadSortOldestFirst"
+  | "showNotifications"
+
+interface IBuiltInSetting extends ISetting {
+  name: BuiltInSettingName
 }
+
+export const builtInSettings: IBuiltInSetting[] = [
+  { type: "boolean", name: "knownOnly", label: "Only fetch known emails", default: false },
+  { type: "boolean", name: "useNerdFonts", label: "Use nerd fonts for icons", default: false },
+  {
+    type: "boolean",
+    name: "threadSortOldestFirst",
+    label: "Sort thread messages by oldest first",
+    default: true
+  },
+  {
+    type: "boolean",
+    name: "showNotifications",
+    label: "Send notifications (using terminal-notifier)",
+    default: false
+  }
+]
+
+export type Settings = {
+  [key: string]: boolean
+} & { [P in BuiltInSettingName]: boolean }
 
 function createSettings() {
   try {
@@ -29,11 +53,9 @@ function createSettings() {
     if (err.code !== "EEXIST") throw err
   }
 
-  let defaultSettings: Settings = {
-    knownOnly: false,
-    useNerdFonts: false,
-    threadSortOldestFirst: true
-  }
+  let defaultSettings: Partial<Settings> = builtInSettings.reduce((memo, setting) => {
+    return { ...memo, [setting.name]: setting.default }
+  }, {})
 
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaultSettings), { encoding: "utf8" })
 }

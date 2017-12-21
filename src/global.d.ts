@@ -80,7 +80,7 @@ declare global {
     pad?: number | null
   }
 
-  interface BlessedReactNodeInstance extends Element {
+  interface BlessedReactNodeInstance extends React.Component {
     focus(): void
     onScreenEvent: (event: string, callback: (...args: any[]) => void) => void
     removeScreenEvent: (event: string, callback: (...args: any[]) => void) => void
@@ -98,6 +98,7 @@ declare global {
     strWidth(string: string): number
     width: number
     focused: boolean
+    children: BlessedReactElementInstance[]
   }
 
   interface BlessedBoxInstance extends BlessedReactElementInstance {}

@@ -6,9 +6,11 @@ import { inspect } from "util"
 
 const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
 
+export type GmailID = string
+
 export class GmailThread {
   private _thread: {
-    id: string
+    id: GmailID
     snippet: string
     messages: object[]
   }
@@ -27,6 +29,14 @@ export class GmailThread {
     settingsEmitter.on("update", () => {
       this.messages = this.getMessages()
     })
+  }
+
+  get subject(): string {
+    return this.messages[0].plainSubject
+  }
+
+  get from(): string {
+    return this.messages[0].from!
   }
 
   private getMessages(): GmailMessage[] {
@@ -92,7 +102,7 @@ export class GmailMessage {
   private payload: object
   private pluginRecognition: MessageRecognition
 
-  id: string
+  id: GmailID
   threadId: string
   date: Date
 
@@ -113,11 +123,11 @@ export class GmailMessage {
   }
 
   get plainSubject(): string {
-    return this._headers["subject"]
+    return this._headers["subject"].replace(/^re: /i, "")
   }
 
   get subject() {
-    let subject = this.plainSubject.replace(/^re: /i, "")
+    let subject = this.plainSubject
 
     if (this.pluginRecognition) {
       if (settingsEmitter.load().useNerdFonts) {
