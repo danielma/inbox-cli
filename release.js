@@ -21,6 +21,7 @@ ask("New version: ")
 
     return ask(`Confirm: ${version}`)
   })
+  .then(() => execute(`npm test`))
   .then(() => {
     const newPackage = { ...npmInfo, version }
 
