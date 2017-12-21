@@ -50,7 +50,7 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
 
   render() {
     const { visiblePane } = this.state
-    const height = 20
+    const height = 25
 
     return (
       <element
@@ -59,7 +59,7 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
         style={{ border: { fg: "green" } }}
         top="center"
         left="center"
-        width={50}
+        width={70}
         height={height}
         scrollable
         keys
@@ -79,6 +79,8 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
           {visiblePane === Panes.Help &&
             `Inbox CLI v${npmInfo.version}
 
+Issues: ${npmInfo.bugs.url}
+
 Keybindings
 `}
           {visiblePane === Panes.Help && (
@@ -87,8 +89,8 @@ Keybindings
               vi
               mouse
               scrollable
-              top={4}
-              height={height - 10}
+              top={6}
+              height={height - 12}
               scrollbar={{ style: { bg: "white" }, track: { bg: "gray" } }}
               data={Object.keys(keybindings).map(k => [k, keybindings[k]])}
               passthroughRef={list => (this.keybindingsTable = list)}
@@ -101,7 +103,7 @@ Keybindings
         <line top="100%-4" orientation="horizontal" style={{ type: "line", fg: "green" }} />
         <box top="100%-3" width="100%" height={1}>
           {" "}
-          press `q` to close
+          press `q` to close this modal
         </box>
       </element>
     )
