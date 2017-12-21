@@ -4,7 +4,7 @@ import settingsEmitter, { Settings } from "./settings"
 import * as PropTypes from "prop-types"
 import keybindings from "./keybindings"
 import ListTable from "./ListTable"
-const npmInfo: { version: string } = require("../package.json")
+const npmInfo: { version: string, bugs: { url: string } } = require("../package.json")
 
 enum Panes {
   Preferences,
