@@ -1,6 +1,6 @@
 {
   "name": "inbox-cli",
-  "version": "1.0.0-alpha6",
+  "version": "1.0.0-alpha7",
   "author": "Daniel Ma <drailskid@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/danielma/inbox-cli",
@@ -28,7 +28,9 @@
     "prepack": "npm run build",
     "test": "npm run typescript-build",
     "_i_know_": "that is not a real test",
-    "prepare": "patch-package"
+
+    "prepare": "patch-package",
+    "release": "node release.js"
   },
   "devDependencies": {
     "@types/react": "^16.0.29",
