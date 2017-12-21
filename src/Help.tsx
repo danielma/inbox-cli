@@ -3,7 +3,7 @@ import { inspect } from "util"
 import settingsEmitter, { Settings } from "./settings"
 import * as PropTypes from "prop-types"
 import keybindings from "./keybindings"
-import { flipArray, padRight } from "./utils"
+import ListTable from "./ListTable"
 const npmInfo: { version: string } = require("../package.json")
 
 enum Panes {
@@ -82,7 +82,7 @@ export default class Help extends React.Component<{ onClose(): void }, IHelpStat
 Keybindings
 `}
           {visiblePane === Panes.Help && (
-            <Table
+            <ListTable
               keys
               vi
               mouse
@@ -181,24 +181,4 @@ class Preferences extends React.Component<{}, Settings> {
       </form>
     )
   }
-}
-
-interface TableProps {
-  data: string[][]
-  passthroughRef?(BlessedListInstance): void
-}
-
-function Table(props: TableProps & BlessedListWithoutItems) {
-  const { data, passthroughRef, ...rest } = props
-  const flipped = flipArray(data)
-
-  const maxes = flipped.map(c => Math.max(...c.map(x => x.length)))
-
-  return (
-    <list
-      {...rest}
-      ref={passthroughRef}
-      items={data.map(row => row.map((column, index) => padRight(column, maxes[index])).join(" "))}
-    />
-  )
 }
