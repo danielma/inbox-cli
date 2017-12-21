@@ -4,7 +4,7 @@ A friendly command line interface to gmail.
 
 I use it to keep track of incoming notifications from github and trello in a keyboard-shortcut, developer friendly manner.
 
-[![asciicast](https://asciinema.org/a/P2KZ8YWKjbBcg29pGexcRzdTj.png)](https://asciinema.org/a/P2KZ8YWKjbBcg29pGexcRzdTj?t=5)
+[![asciicast](screenshots/inbox-cli.gif)](https://asciinema.org/a/P2KZ8YWKjbBcg29pGexcRzdTj?t=5)
 
 ## Installing
 
