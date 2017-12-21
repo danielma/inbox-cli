@@ -222,17 +222,27 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   archiveThread = threadId => {
-    this.logStatus(`archiving ${threadId}`)
+    this.logStatus(`archived ${threadId}`)
+    const lastThreads = this.state.threads
+    const nextThreads = lastThreads.filter(t => t.id != threadId)
+
+    this.setState({ threads: nextThreads })
+
     this.props.gmail.threads
       .modify({
         userId: "me",
         id: threadId,
         resource: { removeLabelIds: ["INBOX"] }
       })
-      .then((thread: any) => {
-        this.setState({ lastArchivedThreadId: thread.id })
-        this.reloadInbox()
-      }, this.logError)
+      .then(
+        (thread: any) => {
+          this.setState({ lastArchivedThreadId: thread.id })
+        },
+        error => {
+          this.logError(error)
+          this.setState({ threads: lastThreads })
+        }
+      )
   }
 
   unarchiveLastArchivedThread = () => {
