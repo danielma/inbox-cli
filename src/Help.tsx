@@ -1,10 +1,10 @@
 import * as React from "react"
 import { inspect } from "util"
-import settingsEmitter, { Settings } from "./settings"
+import settingsEmitter, { Settings, builtInSettings } from "./settings"
 import * as PropTypes from "prop-types"
 import keybindings from "./keybindings"
 import ListTable from "./ListTable"
-const npmInfo: { version: string, bugs: { url: string } } = require("../package.json")
+const npmInfo: { version: string; bugs: { url: string } } = require("../package.json")
 
 enum Panes {
   Preferences,
@@ -113,10 +113,10 @@ Keybindings
 import { flatMap } from "./utils"
 const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
 const pluginSettings = flatMap(plugins, p => p.getSettings())
+const allSettings = [...builtInSettings, ...pluginSettings]
 
 class Preferences extends React.Component<{}, Settings> {
   refs: {
-    [key: string]: BlessedReactElementInstance
     form: BlessedFormInstance
   }
 
@@ -124,12 +124,12 @@ class Preferences extends React.Component<{}, Settings> {
     super(props)
 
     const initialState = {}
-    pluginSettings.forEach(s => (initialState[s.name] = s.default))
+    allSettings.forEach(s => (initialState[s.name] = s.default))
     this.state = { ...initialState, ...settingsEmitter.load() }
   }
 
   componentDidMount() {
-    this.refs.firstCheckbox.focus()
+    this.refs.form.children[0].focus()
   }
 
   handleSubmit = (form, data) => {
@@ -145,43 +145,19 @@ class Preferences extends React.Component<{}, Settings> {
   render() {
     return (
       <form keys vi mouse ref="form" onSubmit={this.handleSubmit}>
-        <checkbox
-          ref="firstCheckbox"
-          mouse
-          name="knownOnly"
-          checked={this.state.knownOnly}
-          onKeypress={this.handleCheckboxKeypress}
-          text="Only fetch known emails"
-        />
-        <checkbox
-          mouse
-          name="useNerdFonts"
-          checked={this.state.useNerdFonts}
-          text="Use nerd fonts (for icons)"
-          onKeypress={this.handleCheckboxKeypress}
-          top={1}
-        />
-        <checkbox
-          mouse
-          name="threadSortOldestFirst"
-          checked={this.state.threadSortOldestFirst}
-          text="Sort thread messages by oldest first"
-          onKeypress={this.handleCheckboxKeypress}
-          top={2}
-        />
-        {pluginSettings.map((setting, index) => (
+        {allSettings.map((setting, index) => (
           <checkbox
             mouse
             name={setting.name}
             checked={!!this.state[setting.name]}
             text={setting.label}
             onKeypress={this.handleCheckboxKeypress}
-            top={index + 3}
+            top={index}
           />
         ))}
         <button
           mouse
-          top={pluginSettings.length + 5}
+          top={allSettings.length + 2}
           onPress={() => this.refs.form.submit()}
           border={{ type: "line" }}
           style={{ focus: { bg: "blue", fg: "black", border: { fg: "blue" } } }}
