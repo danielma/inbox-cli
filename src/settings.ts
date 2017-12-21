@@ -51,9 +51,10 @@ class SettingsEmitter extends EventEmitter {
   }
 
   save(settings: Settings) {
+    const oldSettings = this.inMemorySettings
     this.inMemorySettings = settings
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(this.inMemorySettings), { encoding: "utf8" })
-    this.emit("update", this.inMemorySettings)
+    this.emit("update", this.inMemorySettings, oldSettings)
   }
 }
 

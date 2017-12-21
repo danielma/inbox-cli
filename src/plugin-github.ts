@@ -2,6 +2,10 @@ import { GmailMessage } from "./gmail-classes"
 import settings from "./settings"
 const chalk = require("chalk")
 
+export function getQuery(): string {
+  return "from:github.com"
+}
+
 export function getSettings(): ISetting[] {
   return []
 }

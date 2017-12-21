@@ -160,6 +160,7 @@ declare global {
   interface IPlugin {
     recognize(message: GmailMessage): MessageRecognition
     getSettings(): ISetting[]
+    getQuery(): string
   }
 
   type MessageRecognition = IMessageRecognition | void

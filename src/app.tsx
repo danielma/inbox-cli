@@ -13,6 +13,8 @@ import keybindings from "./keybindings"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
 
+const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
+
 interface IAppProps {
   gmail: {
     threads: {
@@ -67,9 +69,9 @@ class App extends React.Component<IAppProps, IAppState> {
     this.refs.messageList.focus()
     this.setupReloadInterval()
 
-    settingsEmitter.on("update", settings => {
+    settingsEmitter.on("update", (settings, prevSettings) => {
       this.logStatus("Settings updated")
-      if (this.getThreadQuery(settings) !== this.getThreadQuery()) {
+      if (this.getThreadQuery(settings) !== this.getThreadQuery(prevSettings)) {
         this.reloadInbox()
       }
 
@@ -122,7 +124,13 @@ class App extends React.Component<IAppProps, IAppState> {
 
   getThreadQuery = (settings = settingsEmitter.load()) => {
     if (settings.knownOnly) {
-      return "from:trello.com OR from:github.com"
+      return plugins.reduce((memo, plugin, index) => {
+        if (index === 0) {
+          return `(${plugin.getQuery()})`
+        } else {
+          return `${memo} OR (${plugin.getQuery()})`
+        }
+      }, "")
     } else {
       return ""
     }
