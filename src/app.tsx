@@ -72,6 +72,8 @@ class App extends React.Component<IAppProps, IAppState> {
       if (this.getThreadQuery(settings) !== this.getThreadQuery()) {
         this.reloadInbox()
       }
+
+      setTimeout(() => this.forceUpdate(), 0)
     })
 
     this.props.screen.key(["?"], () => this.setState({ showHelp: true }))

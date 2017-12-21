@@ -7,17 +7,36 @@ import { inspect } from "util"
 const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
 
 export class GmailThread {
-  _thread: any
-  messages: [GmailMessage]
+  private _thread: {
+    id: string
+    snippet: string
+    messages: object[]
+  }
+
+  messages: GmailMessage[]
   snippet: string
   id: string
 
   constructor(thread) {
     this._thread = thread
 
-    this.messages = thread.messages.reverse().map(message => new GmailMessage(message))
     this.snippet = this._thread.snippet
     this.id = thread.id
+    this.messages = this.getMessages()
+
+    settingsEmitter.on("update", () => {
+      this.messages = this.getMessages()
+    })
+  }
+
+  private getMessages(): GmailMessage[] {
+    let messages = this._thread.messages
+
+    if (!settingsEmitter.load().threadSortOldestFirst) {
+      messages = [...messages].reverse()
+    }
+
+    return messages.map(message => new GmailMessage(message))
   }
 }
 

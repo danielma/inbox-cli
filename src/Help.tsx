@@ -134,9 +134,9 @@ class Preferences extends React.Component<{}, Settings> {
     settingsEmitter.save(data)
   }
 
-  handleKeypress = settingName => checkbox => {
+  handleCheckboxKeypress = checkbox => {
     setTimeout(() => {
-      this.setState({ [settingName]: checkbox.checked })
+      this.setState({ [checkbox.name]: checkbox.checked })
     }, 0)
   }
 
@@ -148,7 +148,7 @@ class Preferences extends React.Component<{}, Settings> {
           mouse
           name="knownOnly"
           checked={this.state.knownOnly}
-          onKeypress={this.handleKeypress("knownOnly")}
+          onKeypress={this.handleCheckboxKeypress}
           text="Only fetch known emails"
         />
         <checkbox
@@ -156,8 +156,17 @@ class Preferences extends React.Component<{}, Settings> {
           name="useNerdFonts"
           checked={this.state.useNerdFonts}
           text="Use nerd fonts (for icons)"
-          onKeypress={this.handleKeypress("useNerdFonts")}
+          onKeypress={this.handleCheckboxKeypress}
           top={1}
+        />
+
+        <checkbox
+          mouse
+          name="threadSortOldestFirst"
+          checked={this.state.threadSortOldestFirst}
+          text="Sort thread messages by oldest first"
+          onKeypress={this.handleCheckboxKeypress}
+          top={2}
         />
         {pluginSettings.map((setting, index) => (
           <checkbox
@@ -165,13 +174,13 @@ class Preferences extends React.Component<{}, Settings> {
             name={setting.name}
             checked={!!this.state[setting.name]}
             text={setting.label}
-            onKeypress={this.handleKeypress(setting.name)}
-            top={index + 2}
+            onKeypress={this.handleCheckboxKeypress}
+            top={index + 3}
           />
         ))}
         <button
           mouse
-          top={pluginSettings.length + 4}
+          top={pluginSettings.length + 5}
           onPress={() => this.refs.form.submit()}
           border={{ type: "line" }}
           style={{ focus: { bg: "blue", fg: "black", border: { fg: "blue" } } }}

@@ -13,6 +13,7 @@ export interface Settings {
   [key: string]: boolean | string
   knownOnly: boolean
   useNerdFonts: boolean
+  threadSortOldestFirst: boolean
 }
 
 function createSettings() {
@@ -30,7 +31,8 @@ function createSettings() {
 
   let defaultSettings: Settings = {
     knownOnly: false,
-    useNerdFonts: false
+    useNerdFonts: false,
+    threadSortOldestFirst: true
   }
 
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaultSettings), { encoding: "utf8" })
