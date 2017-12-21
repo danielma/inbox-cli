@@ -159,7 +159,6 @@ class Preferences extends React.Component<{}, Settings> {
           onKeypress={this.handleCheckboxKeypress}
           top={1}
         />
-
         <checkbox
           mouse
           name="threadSortOldestFirst"
