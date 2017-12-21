@@ -111,12 +111,24 @@ export class GmailMessage {
     return subject
   }
 
+  get from() {
+    if (this.pluginRecognition && this.pluginRecognition.getFrom) {
+      return this.pluginRecognition.getFrom(this)
+    }
+
+    return this.getHeader("from")
+  }
+
   get plainText() {
     return GmailMessagePart.getPlainText(this._message.payload)
   }
 
   get externalURL() {
     return this.pluginRecognition && this.pluginRecognition.externalURL
+  }
+
+  getHeader(header: string): string | null {
+    return this._headers[header]
   }
 
   open({ background = false } = {}) {

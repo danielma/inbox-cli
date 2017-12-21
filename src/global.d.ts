@@ -154,6 +154,7 @@ declare global {
     nerdFontIcon: string
     asciiIcon: string
     externalURL: string
+    getFrom?(message: GmailMessage): string
   }
 
   interface IPlugin {

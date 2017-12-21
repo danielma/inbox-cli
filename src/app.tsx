@@ -314,7 +314,7 @@ class App extends React.Component<IAppProps, IAppState> {
 
     return (
       withRightAlignedText(subject, {
-        right: `{gray-fg}${formatDate(message.date)}{/}`,
+        right: `${message.from} {gray-fg}${formatDate(message.date)}{/}`,
         list: this.refs.messageList
       }) + "\0".repeat(index)
     )
@@ -394,7 +394,18 @@ class App extends React.Component<IAppProps, IAppState> {
           border={{ type: "line" }}
           style={{ border: { fg: "gray" }, selected: { bg: "gray" } }}
           top="25%"
-          height="75%"
+          height={3}
+          width="100%"
+          mouse
+          scrollable
+        >
+          {selectedMessage && `From: ${selectedMessage.from}`}
+        </box>
+        <box
+          border={{ type: "line" }}
+          style={{ border: { fg: "gray" }, selected: { bg: "gray" } }}
+          top="25%+3"
+          height="75%-3"
           width="100%"
           mouse
           scrollable

@@ -14,8 +14,13 @@ export function recognize(message: GmailMessage): MessageRecognition {
   return {
     nerdFontIcon: chalk.gray("\uf09b"),
     asciiIcon: chalk.white.bgBlackBright("\u2689"),
-    externalURL: url
+    externalURL: url,
+    getFrom
   }
+}
+
+function getFrom(message: GmailMessage): string {
+  return message.getHeader("x-github-sender")!
 }
 
 function githubURL(message: GmailMessage): string | null {

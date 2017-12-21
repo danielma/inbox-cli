@@ -21,8 +21,13 @@ export function recognize(message: GmailMessage): MessageRecognition {
   return {
     nerdFontIcon: chalk.blue("\uf181"),
     asciiIcon: chalk.white.bgBlue("\u259c"),
-    externalURL: url
+    externalURL: url,
+    getFrom
   }
+}
+
+function getFrom(message: GmailMessage): string {
+  return "Trello"
 }
 
 function trelloURL(message: GmailMessage): string | null {
