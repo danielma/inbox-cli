@@ -9,7 +9,17 @@ const CONFIG_DIR = path.join(HOME, ".config")
 const SETTINGS_PATH = path.join(CONFIG_DIR, npmInfo.name, "settings.json")
 const SETTINGS_DIR = path.dirname(SETTINGS_PATH)
 
-export const builtInSettings: ISetting[] = [
+type BuiltInSettingName =
+  | "knownOnly"
+  | "useNerdFonts"
+  | "threadSortOldestFirst"
+  | "showNotifications"
+
+interface IBuiltInSetting extends ISetting {
+  name: BuiltInSettingName
+}
+
+export const builtInSettings: IBuiltInSetting[] = [
   { type: "boolean", name: "knownOnly", label: "Only fetch known emails", default: false },
   { type: "boolean", name: "useNerdFonts", label: "Use nerd fonts for icons", default: false },
   {
@@ -26,9 +36,9 @@ export const builtInSettings: ISetting[] = [
   }
 ]
 
-export interface Settings {
+export type Settings = {
   [key: string]: boolean
-}
+} & { [P in BuiltInSettingName]: boolean }
 
 function createSettings() {
   try {
@@ -43,7 +53,7 @@ function createSettings() {
     if (err.code !== "EEXIST") throw err
   }
 
-  let defaultSettings: Settings = builtInSettings.reduce((memo, setting) => {
+  let defaultSettings: Partial<Settings> = builtInSettings.reduce((memo, setting) => {
     return { ...memo, [setting.name]: setting.default }
   }, {})
 

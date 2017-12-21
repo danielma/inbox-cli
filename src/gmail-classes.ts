@@ -6,9 +6,11 @@ import { inspect } from "util"
 
 const plugins: IPlugin[] = [require("./plugin-github"), require("./plugin-trello")]
 
+export type GmailID = string
+
 export class GmailThread {
   private _thread: {
-    id: string
+    id: GmailID
     snippet: string
     messages: object[]
   }
@@ -92,7 +94,7 @@ export class GmailMessage {
   private payload: object
   private pluginRecognition: MessageRecognition
 
-  id: string
+  id: GmailID
   threadId: string
   date: Date
 
