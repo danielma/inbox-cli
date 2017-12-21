@@ -10,6 +10,7 @@ import ErrorBoundary from "./ErrorBoundary"
 import Help from "./Help"
 import settingsEmitter, { Settings } from "./settings"
 import keybindings from "./keybindings"
+import notifier from "./notifier"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
 
@@ -36,6 +37,7 @@ interface IAppState {
   searching: boolean
   fuzzySearch: string | null
   showHelp: boolean
+  hasEverLoadedInbox: boolean
 }
 
 export interface IAppContext {
@@ -60,7 +62,8 @@ class App extends React.Component<IAppProps, IAppState> {
       status: null,
       searching: false,
       fuzzySearch: null,
-      showHelp: false
+      showHelp: false,
+      hasEverLoadedInbox: false
     }
   }
 
@@ -119,7 +122,12 @@ class App extends React.Component<IAppProps, IAppState> {
         )
       })
       .then(threads => threads.map(t => new GmailThread(t)))
-      .then(threads => this.setState({ threads }))
+      .then(threads => {
+        if (this.state.hasEverLoadedInbox) {
+          notifier.processNewThreads(this.state.threads, threads)
+        }
+        this.setState({ threads, hasEverLoadedInbox: true })
+      })
   }
 
   getThreadQuery = (settings = settingsEmitter.load()) => {

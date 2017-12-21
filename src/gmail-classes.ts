@@ -31,6 +31,14 @@ export class GmailThread {
     })
   }
 
+  get subject(): string {
+    return this.messages[0].plainSubject
+  }
+
+  get from(): string {
+    return this.messages[0].from!
+  }
+
   private getMessages(): GmailMessage[] {
     let messages = this._thread.messages
 
@@ -115,11 +123,11 @@ export class GmailMessage {
   }
 
   get plainSubject(): string {
-    return this._headers["subject"]
+    return this._headers["subject"].replace(/^re: /i, "")
   }
 
   get subject() {
-    let subject = this.plainSubject.replace(/^re: /i, "")
+    let subject = this.plainSubject
 
     if (this.pluginRecognition) {
       if (settingsEmitter.load().useNerdFonts) {
