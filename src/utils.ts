@@ -48,7 +48,12 @@ export function formatDate(
 
     const hours = date.getHours()
     const displayHours = hours >= 10 ? `${hours}` : ` ${hours}`
-    return `${date.getMonth()}/${date.getDate()} ${displayHours}:${displayMinutes}`
+    const month = date.getMonth() + 1
+    const displayMonth = month >= 10 ? `${month}` : ` ${month}`
+    const dateDate = date.getDate()
+    const displayDate = dateDate >= 10 ? `${dateDate}` : `0${dateDate}`
+
+    return `${displayMonth}/${displayDate} ${displayHours}:${displayMinutes}`
   } else {
     throw `Uknown mode: ${mode}`
   }
