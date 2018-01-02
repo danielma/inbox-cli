@@ -11,6 +11,7 @@ import Help from "./Help"
 import settingsEmitter, { Settings } from "./settings"
 import keybindings from "./keybindings"
 import notifier from "./notifier"
+import { exec } from "child_process"
 
 const FAKE_IT = process.argv.indexOf("--fake") > -1
 
@@ -88,6 +89,8 @@ class App extends React.Component<IAppProps, IAppState> {
     if (prevState.showHelp && !this.state.showHelp) {
       this.refs.messageList.focus()
     }
+
+    this.setTmuxTitle()
   }
 
   setupReloadInterval = () => {
@@ -128,6 +131,10 @@ class App extends React.Component<IAppProps, IAppState> {
         }
         this.setState({ threads, hasEverLoadedInbox: true })
       })
+  }
+
+  setTmuxTitle = () => {
+    exec(`tmux rename-window "inbox (${this.state.threads.length})"`)
   }
 
   getThreadQuery = (settings = settingsEmitter.load()) => {
