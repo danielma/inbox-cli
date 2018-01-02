@@ -41,7 +41,7 @@ function trelloURL(message: GmailMessage): string | null {
 
   const originalURL = match[1]
 
-  if (settings.load().useTrelloDesktop) {
+  if (settings.load()["trello.useDesktop"]) {
     return originalURL.replace("https://", "trello://")
   } else {
     return originalURL
