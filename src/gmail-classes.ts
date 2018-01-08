@@ -46,7 +46,7 @@ export class GmailThread {
       messages = [...messages].reverse()
     }
 
-    return messages.map(message => new GmailMessage(message))
+    return messages.map(message => new GmailMessage(message, { thread: this }))
   }
 }
 
@@ -104,9 +104,10 @@ export class GmailMessage {
 
   id: GmailID
   threadId: string
+  thread: GmailThread
   date: Date
 
-  constructor(message) {
+  constructor(message, { thread }: { thread: GmailThread }) {
     this._message = message
     this._headers = {}
     this._headers = message.payload.headers.reduce((memo, header) => {
@@ -115,6 +116,7 @@ export class GmailMessage {
     }, {})
     this.payload = message.payload
     this.threadId = message.threadId
+    this.thread = thread
     this.id = message.id
     this.date = new Date(this._headers["date"])
 

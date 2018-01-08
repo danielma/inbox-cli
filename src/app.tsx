@@ -83,14 +83,19 @@ class App extends React.Component<IAppProps, IAppState> {
     })
 
     this.props.screen.key(["?"], () => this.setState({ showHelp: true }))
+    this.setTmuxTitle({ initial: true })
   }
 
-  componentDidUpdate(_prevProps, prevState) {
+  componentDidUpdate(_prevProps: IAppProps, prevState: IAppState) {
     if (prevState.showHelp && !this.state.showHelp) {
       this.refs.messageList.focus()
     }
 
     this.setTmuxTitle()
+
+    if (prevState.selectedIndex !== this.state.selectedIndex && this.selectedThread) {
+      notifier.hideNotification(this.selectedThread)
+    }
   }
 
   setupReloadInterval = () => {
@@ -133,8 +138,12 @@ class App extends React.Component<IAppProps, IAppState> {
       })
   }
 
-  setTmuxTitle = () => {
-    exec(`tmux rename-window "inbox (${this.state.threads.length})"`)
+  setTmuxTitle = ({ initial } = { initial: false }) => {
+    if (initial) {
+      exec(`tmux rename-window inbox-cli`)
+    } else {
+      exec(`tmux rename-window -t inbox-cli "inbox-cli (${this.state.threads.length})"`)
+    }
   }
 
   getThreadQuery = (settings = settingsEmitter.load()) => {
@@ -371,10 +380,21 @@ class App extends React.Component<IAppProps, IAppState> {
     }, subjects)
   }
 
+  get selectedMessage() {
+    return this.messages[this.state.selectedIndex || 0]
+  }
+
+  get selectedThread(): GmailThread | null {
+    if (this.selectedMessage) {
+      return this.selectedMessage.thread
+    }
+
+    return null
+  }
+
   render() {
     const { error, status, searching, showHelp } = this.state
-    const { messages, messageSubjects } = this
-    const selectedMessage = messages[this.state.selectedIndex || 0]
+    const { messages, messageSubjects, selectedMessage } = this
 
     return (
       <element>
