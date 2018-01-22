@@ -406,16 +406,17 @@ class App extends React.Component<IAppProps, IAppState> {
             border: { fg: "blue" },
             selected: { bg: "blue", fg: "black" }
           }}
-          items={messageSubjects}
+          items={messageSubjects.concat([""])}
           tags
           keys
           mouse
           onSelectItem={(_node, _i, selectedIndex) => this.setState({ selectedIndex })}
           onSelect={(_node, _item, index) => {
-            messages[index]
-              .open()
-              .then(() => this.logStatus(`open ${selectedMessage.externalURL}`))
-              .catch(this.logError)
+            messages[index] &&
+              messages[index]
+                .open()
+                .then(() => this.logStatus(`open ${selectedMessage.externalURL}`))
+                .catch(this.logError)
           }}
           onKeypress={this.handleMessageListKeypress}
           ref="messageList"
