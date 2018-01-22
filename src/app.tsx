@@ -507,7 +507,8 @@ authorize().then((gmail: GmailAPIInstance) => {
     autoPadding: true,
     smartCSR: true,
     title: "inbox",
-    ignoreLocked: ["C-c"]
+    ignoreLocked: ["C-c"],
+    fullUnicode: true
   })
 
   screen.key(["C-c"], function(ch, key) {
