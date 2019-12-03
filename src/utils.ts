@@ -23,6 +23,10 @@ export function withRightAlignedText(string: string, { right, list }: WithRightO
   const padding = width - stringWidth - rightWidth - 4
 
   if (padding < 1) {
+    if (Math.abs(padding) > stringWidth) {
+      return right
+    }
+
     const trimmedString = string.slice(0, padding - 1)
     return withRightAlignedText(trimmedString, { right, list })
   } else {
