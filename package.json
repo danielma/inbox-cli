@@ -16,12 +16,13 @@
     "inbox-cli": "./dist/index.js"
   },
   "dependencies": {
-    "blessed": "^0.1.81",
+    "neo-blessed": "^0.2.0",
     "chalk": "^2.3.0",
     "googleapis": "^23.0.0",
     "html-to-text": "^3.3.0",
+    "neo-blessed": "^0.2.0",
     "react": ">= 16.0.0",
-    "react-blessed": "danielma/react-blessed#92051986023d753b6b6ba098cde23cad3af6b729"
+    "react-blessed": "danielma/react-blessed#80aa6fe6e5fc16986f258b9708b5e5f3fd3a5347"
   },
   "scripts": {
     "start": "node -r ts-node/register src/index.js",

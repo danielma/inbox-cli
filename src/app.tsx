@@ -1,5 +1,5 @@
 import * as React from "react"
-const blessed = require("blessed")
+const blessed = require("neo-blessed")
 const { render } = require("react-blessed/dist/fiber/fiber")
 const authorize = require("./authorize")
 import { GmailMessage, GmailThread } from "./gmail-classes"
@@ -99,7 +99,7 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   setupReloadInterval = () => {
-    setInterval(this.reloadInbox, 30000)
+    setInterval(this.reloadInbox, 30 * 60000) // 30 minutes
   }
 
   reloadFakeInbox = () => {
@@ -139,10 +139,16 @@ class App extends React.Component<IAppProps, IAppState> {
   }
 
   setTmuxTitle = ({ initial } = { initial: false }) => {
+    const ifTmux = '[ -n "$TMUX" ] && '
+    // const getWindow = `tmux display-message -p '#I'`
     if (initial) {
-      exec(`tmux rename-window inbox-cli`)
+      // exec(`${ifTmux} tmux rename-window -t $(${getWindow}) inbox-cli`)
+      exec(`${ifTmux} tmux rename-window inbox-cli`)
     } else {
-      exec(`tmux rename-window -t inbox-cli "inbox-cli (${this.state.threads.length})"`)
+      exec(`${ifTmux} tmux rename-window -t inbox-cli "inbox-cli (${this.state.threads.length})"`)
+      // exec(
+      //   `${ifTmux} tmux rename-window -t $(${getWindow}) "inbox-cli (${this.state.threads.length})"`
+      // )
     }
   }
 

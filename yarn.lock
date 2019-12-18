@@ -164,10 +164,6 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-blessed@^0.1.81:
-  version "0.1.81"
-  resolved "https://registry.yarnpkg.com/blessed/-/blessed-0.1.81.tgz#f962d687ec2c369570ae71af843256e6d0ca1129"
-
 boom@4.x.x:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/boom/-/boom-4.3.1.tgz#4f8a3005cb4a7e3889f749030fd25b96e01d2e31"
@@ -1057,6 +1053,10 @@ ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
+neo-blessed@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/neo-blessed/-/neo-blessed-0.2.0.tgz#30f9495fdd104494402b62c6273a9c9b82de4f2b"
+
 node-fetch@^1.0.1:
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-1.7.3.tgz#980f6f72d85211a5347c6b2bc18c5b84c3eb47ef"
@@ -1291,9 +1291,9 @@ rc@^1.0.1, rc@^1.1.2, rc@^1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-blessed@danielma/react-blessed#92051986023d753b6b6ba098cde23cad3af6b729:
+react-blessed@danielma/react-blessed#80aa6fe6e5fc16986f258b9708b5e5f3fd3a5347:
   version "0.2.1"
-  resolved "https://codeload.github.com/danielma/react-blessed/tar.gz/92051986023d753b6b6ba098cde23cad3af6b729"
+  resolved "https://codeload.github.com/danielma/react-blessed/tar.gz/80aa6fe6e5fc16986f258b9708b5e5f3fd3a5347"
   dependencies:
     invariant "^2.2.0"
     lodash "^4.x.x"
