@@ -97,15 +97,15 @@ function getNewToken(oauth2Client) {
       openURL(authUrl)
 
       rl.question("Enter the code from that page here: ", function(code) {
-        rl.close()
         oauth2Client.getToken(code, function(err, token) {
           if (err) {
-            puts("Error while trying to retrieve access token", err)
+            puts("Error while trying to retrieve access token", inspect(err))
             reject(err)
             return
           }
           oauth2Client.credentials = token
           storeToken(token)
+          rl.close()
           resolve(oauth2Client)
         })
       })
@@ -126,6 +126,6 @@ function storeToken(token) {
       throw err
     }
   }
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token))
+  fs.writeFileSync(TOKEN_PATH, JSON.stringify(token))
   puts("Token stored to " + TOKEN_PATH)
 }
