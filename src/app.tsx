@@ -373,13 +373,13 @@ class App extends React.Component<IAppProps, IAppState> {
   get messageSubjects() {
     let subjects: string[] = []
 
-    return this.filteredThreads.reduce((memo, thread) => {
+    return this.filteredThreads.reduce((memo, thread, threadIndex) => {
       let s: string[]
 
       if (this.state.openThreads[thread.id]) {
         s = thread.messages.map((m, index) => this.getMessageSubject(m, thread, index))
       } else {
-        s = [this.getMessageSubject(thread.messages[0], thread)]
+        s = [this.getMessageSubject(thread.messages[0], thread, threadIndex)]
       }
 
       return memo.concat(s)
@@ -456,18 +456,18 @@ class App extends React.Component<IAppProps, IAppState> {
           border={{ type: "line" }}
           style={{ border: { fg: "gray" }, selected: { bg: "gray" } }}
           top="25%"
-          height={3}
+          height={4}
           width="100%"
           mouse
           scrollable
         >
-          {selectedMessage && `From: ${selectedMessage.from}`}
+          {selectedMessage && `${selectedMessage.subject}\nFrom: ${selectedMessage.from}`}
         </box>
         <box
           border={{ type: "line" }}
           style={{ border: { fg: "gray" }, selected: { bg: "gray" } }}
-          top="25%+3"
-          height="75%-3"
+          top="25%+4"
+          height="75%-4"
           width="100%"
           mouse
           scrollable

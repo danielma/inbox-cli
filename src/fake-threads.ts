@@ -20,6 +20,24 @@ export const threads = [
     id: 'thread1',
   }),
   new GmailThread({
+    messages: [{
+      payload: {
+        headers: [
+          { name: "Subject", value: "[repo] thang" }
+        ],
+        parts: [{
+          mimeType: "text/plain",
+          body: {
+            data: "TWVyZ2VkICMyNzAwLg0KDQotLQ0KWW91IGFyZSByZWNlaXZpbmcgdGhpcyBiZWNhdXNlIHlvdSBhcmUgc3Vic2NyaWJlZCB0byB0aGlzIHRocmVhZC4NClJlcGx5IHRvIHRoaXMgZW1haWwgZGlyZWN0bHkgb3IgdmlldyBpdCBvbiBHaXRIdWI6DQpodHRwczovL2dpdGh1Yi5jb20vbWluaXN0cnljZW50ZXJlZC9naXZpbmcvcHVsbC8yNzAwI2V2ZW50LTEzODY1NjI0NDk="
+          }
+        }]
+      },
+      threadId: 'thread2',
+      id: 'message2',
+    }],
+    id: 'thread2',
+  }),
+  new GmailThread({
     messages: [
       {
       payload: {
