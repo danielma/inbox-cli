@@ -18,7 +18,7 @@
   "dependencies": {
     "neo-blessed": "^0.2.0",
     "chalk": "^2.3.0",
-    "googleapis": "^23.0.0",
+    "googleapis": "^39.1.0",
     "html-to-text": "^3.3.0",
     "neo-blessed": "^0.2.0",
     "react": ">= 16.0.0",
